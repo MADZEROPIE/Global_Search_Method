@@ -92,7 +92,7 @@ public:
         if (fout.is_open()) {
             fout << "Минимум функции = " << sol.second << " в точке x = " << sol.first << std::endl;
             fout << "Точность вычислений eps = " << eps << std::endl;
-            fout << "Параметр метода r = " << r << std::endl;
+            fout << "Параметр метода r = " << std::fixed <<r << std::endl;
             fout << "Функция была посчитана " << count << " раз(а)" << std::endl;
         }
     }
@@ -162,11 +162,10 @@ public:
 };
 
 void main(int argc,char* argv[]) {
-    setlocale(LC_ALL, "Russian");
+   
     THansenProblemFamily HFam;
     std::ofstream file;
     std::string filepath = "results.csv";
-
     
     if (argc > 1) filepath = argv[1];
     double r = 2.0;
@@ -174,7 +173,10 @@ void main(int argc,char* argv[]) {
     double eps = 0.01;
     if(argc>3) eps = std::stod(argv[3]);
 
+    setlocale(LC_ALL, "Russian");
+
     file.open(filepath, std::ofstream::app);
+    //file.precision(6);
     for (size_t i = 0; i < HFam.GetFamilySize();++i) {
         std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
         Tester Tes(HFam[i], eps, r);
