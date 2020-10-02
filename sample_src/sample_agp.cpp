@@ -18,39 +18,35 @@ using std::pair;
 typedef pair<double, double> dpair;
 
 
-
 class Minimazer { //Don't ask me why... But only because using a sledge-hammer to crack a nut sounds fun.
 
 protected:
-    std::function<double(double)> func; //Function that needs findin' minimum
+    //std::function<double(double)> func; //Function that needs findin' minimum
     double a; //Beginning of the segment
     double b; //End of the segment
 
     double r; //Coefficient of the method
 
     double eps;
-
+    IOptProblem* IOPPtr; //Problem that needs findin' minimum
     dpair sol;
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
 
 public:
-    Minimazer(std::function<double(const vector<double>&)> _func, double _a, double _b, double _eps = 0.01, double _r = 2.0) {
-        func = [&_func](double x) { return _func({ x }); };
-        a = _a; b = _b;
-        eps = _eps;
+    Minimazer(IOptProblem*  _IOPPtr, double _eps = 0.01, double _r = 2.0) {
+        IOPPtr = _IOPPtr;
+        vector<double> tmp_lb, tmp_rb;
+        IOPPtr->GetBounds(tmp_lb, tmp_rb);
+        a = tmp_lb[0]; b = tmp_rb[0];
         r = (_r > 1.0) ? _r : 2.0;
-    }
-    Minimazer(std::function<double(double)>  _func = [](double x) {return x * x; }, double _a = 0.0, double _b = 1.0, double _eps = 0.01, double _r = 2.0) {
-        func = _func;
-        a = _a; b = _b;
         eps = _eps;
-        r = (_r > 1.0) ? _r : 2.0;
     }
+   
     dpair find_glob_min() {
         vector<pair<double, double> > vec;
-        vec.push_back(dpair(a, func(a)));
-        vec.push_back(dpair(b, func(b)));
+        vec.push_back(dpair(a, IOPPtr->ComputeFunction({ a })));
+        vec.push_back(dpair(b, IOPPtr->ComputeFunction({ b })));
         count = 2;
         double M = 0;
         size_t k = 2;
@@ -72,7 +68,7 @@ public:
             }
 
             double x_t1 = (vec[t].first + vec[t + 1].first) / 2 - (vec[t + 1].second - vec[t].second) / (2 * m);
-            dpair t1_pair (x_t1, func(x_t1));
+            dpair t1_pair(x_t1, IOPPtr->ComputeFunction({ (x_t1) }));
             ++count;
             vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const dpair& a, const dpair& b) {return a.first <= b.first; }), t1_pair); //No need for sorting, only to insert
         }
@@ -113,17 +109,10 @@ private:
     Minimazer Min;
     dpair expected;
     dpair deviation;
-    std::function<double(double)> func;
     double eps;
 public:
-    Tester(IOptProblem* IOPPtr, double _eps = 0.01,double _r=2.0) {
-        func = [&IOPPtr](double x) {
-            return IOPPtr->ComputeFunction ({ x });
-        };
+    Tester(IOptProblem* IOPPtr, double _eps = 0.01,double _r=2.0): Min(IOPPtr, _eps,_r) {
         eps = _eps;
-        vector<double> tmp_lb, tmp_rb;
-        IOPPtr->GetBounds(tmp_lb, tmp_rb);
-        Min = Minimazer(func, tmp_lb[0], tmp_rb[0], eps,_r);
         auto exp_tmp = IOPPtr->GetOptimumPoint();
         expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
     }
@@ -161,6 +150,8 @@ public:
 
 };
 
+
+
 int main(int argc,char* argv[]) {
    
     THansenProblemFamily HFam;
@@ -175,6 +166,7 @@ int main(int argc,char* argv[]) {
 
     setlocale(LC_ALL, "Russian");
 
+    
     file.open(filepath, std::ofstream::app);
     //file.precision(6);
     for (size_t i = 0; i < HFam.GetFamilySize();++i) {
