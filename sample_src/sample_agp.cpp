@@ -161,7 +161,7 @@ public:
 
 };
 
-void main(int argc,char* argv[]) {
+int main(int argc,char* argv[]) {
    
     THansenProblemFamily HFam;
     std::ofstream file;
@@ -186,5 +186,5 @@ void main(int argc,char* argv[]) {
             Tes.Show_info_in_file(file);
         }
     }
-    
+    return 0;
 }
