@@ -1,6 +1,8 @@
 #include <iostream>
-#include "HansenProblem.hpp"
+//#include "HansenProblem.hpp"
 #include "HansenProblemFamily.hpp"
+#include "Hill/HillProblemFamily.hpp"
+#include "Shekel/ShekelProblemFamily.hpp"
 
 
 //Code from https://github.com/MADZEROPIE/Global-Search-Method
@@ -105,7 +107,6 @@ public:
 
 class Tester {
 private:
-    static THansenProblemFamily HFam;
     Minimazer Min;
     dpair expected;
     dpair deviation;
@@ -117,13 +118,13 @@ public:
         expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
     }
 
-    void Test() {
+    bool Test() {
         dpair res=Min.find_glob_min();
         
-        double dev = (res.second - expected.second);
+        double dev = (res.first - expected.first);
+       // std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
+        return (abs(dev) < eps);
         
-       // bool test_res = (abs(dev) < eps);
-        //std::cout<< "Алгоритм отработал "<<((test_res)? "ПРАВИЛЬНО": "НЕПРАВИЛЬНО") << std::endl;
         
     }
     void Show_info() {
@@ -154,12 +155,12 @@ public:
 
 int main(int argc,char* argv[]) {
    
-    THansenProblemFamily HFam;
+    
     std::ofstream file;
     std::string filepath = "results.csv";
     
     if (argc > 1) filepath = argv[1];
-    double r = 2.0;
+    double r = 3.0;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if(argc>3) eps = std::stod(argv[3]);
@@ -169,14 +170,49 @@ int main(int argc,char* argv[]) {
     
     file.open(filepath, std::ofstream::app);
     //file.precision(6);
+
+    uint64_t CorrectCount=0;
+    THansenProblemFamily HFam;
     for (size_t i = 0; i < HFam.GetFamilySize();++i) {
-        std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
+        //std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
         Tester Tes(HFam[i], eps, r);
-        Tes.Test();
+        if (Tes.Test()) ++CorrectCount;
         if (file.is_open()) {
             file << "THansenProblem" << i << std::endl;
             Tes.Show_info_in_file(file);
         }
     }
+    std::cout << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << "THansenProblem." << std::endl << std::endl;
+
+
+    CorrectCount = 0;
+    THillProblemFamily HillFam;
+    for (size_t i = 0; i < HillFam.GetFamilySize(); ++i) {
+        //std::cout << "Тестируется THillProblem" << i << "..." << std::endl;
+        Tester Tes(HillFam[i], eps, r);
+        if (Tes.Test()) ++CorrectCount;
+        if (file.is_open()) {
+            file << "THillProblem" << i << std::endl;
+            Tes.Show_info_in_file(file);
+        }
+    }
+    std::cout << "Правильно решено " << CorrectCount << " из " << HillFam.GetFamilySize() << " THillProblem." << std::endl << std::endl;
+
+    CorrectCount = 0;
+    TShekelProblemFamily ShekFam;
+    for (size_t i = 0; i < ShekFam.GetFamilySize(); ++i) {
+        //std::cout << "Тестируется TShekelProblem" << i << "..." << std::endl;
+        Tester Tes(ShekFam[i], eps, r);
+        if (Tes.Test()) ++CorrectCount;
+        if (file.is_open()) {
+            file << "TShekelProblem" << i << std::endl;
+            Tes.Show_info_in_file(file);
+        }
+    }
+    std::cout << "Правильно решено " << CorrectCount << " из " << ShekFam.GetFamilySize() << " TShekelProblem." << std::endl << std::endl;
+
+
+
+    file.close();
     return 0;
 }
