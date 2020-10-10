@@ -182,7 +182,7 @@ int main(int argc,char* argv[]) {
             Tes.Show_info_in_file(file);
         }
     }
-    std::cout << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << "THansenProblem." << std::endl << std::endl;
+    std::cout << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
 
     CorrectCount = 0;
