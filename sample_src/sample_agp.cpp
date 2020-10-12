@@ -34,6 +34,7 @@ protected:
     dpair sol;
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
+    unsigned long long NMax = 500; // Magic Number
 
 public:
     Minimazer(IOptProblem*  _IOPPtr, double _eps = 0.01, double _r = 2.0) {
@@ -54,7 +55,7 @@ public:
         size_t k = 2;
         size_t t = 0;
 
-        for (; ((vec[t + 1].first) - (vec[t].first)) > eps; ++k) {
+        for (; abs(vec[t + 1].first - IOPPtr->GetOptimumPoint()[0]) > eps && k<NMax; ++k) {
             for (size_t i = 0; i < (k - 1u); ++i) {
                 double M_tmp = abs((vec[i + 1].second - vec[i].second) / (vec[i + 1].first - vec[i].first));
                 if (M_tmp > M) M = M_tmp;
@@ -122,7 +123,7 @@ public:
         dpair res=Min.find_glob_min();
         
         double dev = (res.first - expected.first);
-       // std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
+        //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
         return (abs(dev) < eps);
         
         
@@ -157,10 +158,10 @@ int main(int argc,char* argv[]) {
    
     
     std::ofstream file;
-    std::string filepath = "results.csv";
+    std::string filepath = "results.txt";
     
     if (argc > 1) filepath = argv[1];
-    double r = 3.0;
+    double r = 5.0;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if(argc>3) eps = std::stod(argv[3]);
@@ -183,8 +184,9 @@ int main(int argc,char* argv[]) {
         }
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
+    file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
-
+    
     CorrectCount = 0;
     THillProblemFamily HillFam;
     for (size_t i = 0; i < HillFam.GetFamilySize(); ++i) {
@@ -197,7 +199,7 @@ int main(int argc,char* argv[]) {
         }
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << HillFam.GetFamilySize() << " THillProblem." << std::endl << std::endl;
-
+    file << "Правильно решено " << CorrectCount << " из " << HillFam.GetFamilySize() << " THillProblem." << std::endl << std::endl;
     CorrectCount = 0;
     TShekelProblemFamily ShekFam;
     for (size_t i = 0; i < ShekFam.GetFamilySize(); ++i) {
@@ -210,8 +212,8 @@ int main(int argc,char* argv[]) {
         }
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << ShekFam.GetFamilySize() << " TShekelProblem." << std::endl << std::endl;
-
-
+    file << "Правильно решено " << CorrectCount << " из " << ShekFam.GetFamilySize() << " TShekelProblem." << std::endl << std::endl;
+    
 
     file.close();
     return 0;
