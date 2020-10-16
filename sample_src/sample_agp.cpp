@@ -34,16 +34,17 @@ protected:
     dpair sol;
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
-    unsigned long long NMax = 500; // Magic Number
+    unsigned long long NMax; // Magic Number
 
 public:
-    Minimazer(IOptProblem*  _IOPPtr, double _eps = 0.01, double _r = 2.0) {
+    Minimazer(IOptProblem*  _IOPPtr, double _eps = 0.01, double _r = 2.0, uint64_t _NMax=500) {
         IOPPtr = _IOPPtr;
         vector<double> tmp_lb, tmp_rb;
         IOPPtr->GetBounds(tmp_lb, tmp_rb);
         a = tmp_lb[0]; b = tmp_rb[0];
         r = (_r > 1.0) ? _r : 2.0;
         eps = _eps;
+        NMax = _NMax;
     }
    
     dpair find_glob_min() {
@@ -99,6 +100,7 @@ public:
         if (!solved) this->find_glob_min();
         return sol;
     }
+    unsigned long long GetCount() { return count; }
 
     bool IsSolved() { return solved; }
 };
@@ -113,7 +115,7 @@ private:
     dpair deviation;
     double eps;
 public:
-    Tester(IOptProblem* IOPPtr, double _eps = 0.01,double _r=2.0): Min(IOPPtr, _eps,_r) {
+    Tester(IOptProblem* IOPPtr, double _eps = 0.01,double _r=2.0, uint64_t _NMax=500): Min(IOPPtr, _eps,_r,_NMax) {
         eps = _eps;
         auto exp_tmp = IOPPtr->GetOptimumPoint();
         expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
@@ -149,72 +151,76 @@ public:
             fout << std::endl;
         }
     }
+    unsigned long long GetCount() { return Min.GetCount(); }
+
 
 };
+
+
+void func(IOptProblemFamily* IOPFPtr,std::string filepath , double r, double eps, uint64_t NMax) {
+	std::ofstream file;
+	file.open(filepath);
+    uint64_t CorrectCount = 0;
+    vector<unsigned long long> CountVec1(IOPFPtr->GetFamilySize());
+    for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
+        //std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
+        Tester Tes(IOPFPtr->operator[](i), eps, r);
+        if (Tes.Test()) ++CorrectCount;
+        Tes.Show_info();
+        //if (file.is_open()) {
+        //    file << "THansenProblem" << i << std::endl;
+        //    Tes.Show_info_in_file(file);
+       // }
+        CountVec1[i] = Tes.GetCount();
+    }
+    std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() << "." << std::endl << std::endl;
+    //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
+    std::sort(CountVec1.begin(), CountVec1.end());
+
+    file << "sep=,\n";
+    for (size_t i = 0; i < CountVec1.size() && CountVec1[i] != NMax; ++i) {
+        while (i + 1 < CountVec1.size() && CountVec1[i] == CountVec1[i + 1]) { ++i; }
+        file << CountVec1[i] << ',' << double(i + 1) / double(CountVec1.size()) << "\n";
+    }
+    file << '\n';
+}
 
 
 
 int main(int argc,char* argv[]) {
    
     
-    std::ofstream file;
-    std::string filepath = "results.txt";
     
-    if (argc > 1) filepath = argv[1];
-    double r = 5.0;
+    std::string filepath = "results";
+    
+    if (argc > 1){ filepath = argv[1];}
+    double r = 2.0;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
-    if(argc>3) eps = std::stod(argv[3]);
+    if(argc > 3) eps = std::stod(argv[3]);
 
     setlocale(LC_ALL, "Russian");
 
     
-    file.open(filepath, std::ofstream::app);
+   
     //file.precision(6);
-
+    
+    //TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
     uint64_t CorrectCount=0;
+    uint64_t NMax=500;
     THansenProblemFamily HFam;
-    for (size_t i = 0; i < HFam.GetFamilySize();++i) {
-        //std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
-        Tester Tes(HFam[i], eps, r);
-        if (Tes.Test()) ++CorrectCount;
-        if (file.is_open()) {
-            file << "THansenProblem" << i << std::endl;
-            Tes.Show_info_in_file(file);
-        }
-    }
-    std::cout << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
-    file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
-
-    
-    CorrectCount = 0;
     THillProblemFamily HillFam;
-    for (size_t i = 0; i < HillFam.GetFamilySize(); ++i) {
-        //std::cout << "Тестируется THillProblem" << i << "..." << std::endl;
-        Tester Tes(HillFam[i], eps, r);
-        if (Tes.Test()) ++CorrectCount;
-        if (file.is_open()) {
-            file << "THillProblem" << i << std::endl;
-            Tes.Show_info_in_file(file);
-        }
-    }
-    std::cout << "Правильно решено " << CorrectCount << " из " << HillFam.GetFamilySize() << " THillProblem." << std::endl << std::endl;
-    file << "Правильно решено " << CorrectCount << " из " << HillFam.GetFamilySize() << " THillProblem." << std::endl << std::endl;
-    CorrectCount = 0;
     TShekelProblemFamily ShekFam;
-    for (size_t i = 0; i < ShekFam.GetFamilySize(); ++i) {
-        //std::cout << "Тестируется TShekelProblem" << i << "..." << std::endl;
-        Tester Tes(ShekFam[i], eps, r);
-        if (Tes.Test()) ++CorrectCount;
-        if (file.is_open()) {
-            file << "TShekelProblem" << i << std::endl;
-            Tes.Show_info_in_file(file);
-        }
-    }
-    std::cout << "Правильно решено " << CorrectCount << " из " << ShekFam.GetFamilySize() << " TShekelProblem." << std::endl << std::endl;
-    file << "Правильно решено " << CorrectCount << " из " << ShekFam.GetFamilySize() << " TShekelProblem." << std::endl << std::endl;
     
+    vector<IOptProblemFamily*> vec = { &HFam,&HillFam,&ShekFam };
 
-    file.close();
+    vector<std::string> names_vec = { "Hansen","Hill","Shekel" };
+
+    for (size_t i=0;i<vec.size();++i) {
+		func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax);
+	}
+
+
+   
     return 0;
 }
