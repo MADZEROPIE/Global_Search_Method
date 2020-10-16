@@ -178,10 +178,15 @@ void func(IOptProblemFamily* IOPFPtr,std::string filepath , double r, double eps
     std::sort(CountVec1.begin(), CountVec1.end());
 
     file << "sep=,\n";
-    for (size_t i = 0; i < CountVec1.size() && CountVec1[i] != NMax; ++i) {
+    file << "0,0\n";
+    double tmp;
+    size_t i;
+    for (i = 0; i < CountVec1.size() && CountVec1[i] != NMax; ++i) {
         while (i + 1 < CountVec1.size() && CountVec1[i] == CountVec1[i + 1]) { ++i; }
-        file << CountVec1[i] << ',' << double(i + 1) / double(CountVec1.size()) << "\n";
+        tmp = double(i + 1) / double(CountVec1.size());
+        file << CountVec1[i] << ',' << tmp << "\n";
     }
+    if(CountVec1[i] == NMax) file << CountVec1[i] << ',' << tmp << "\n";
     file << '\n';
 }
 
