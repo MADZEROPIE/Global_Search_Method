@@ -114,6 +114,7 @@ private:
     dpair expected;
     dpair deviation;
     double eps;
+
 public:
     Tester(IOptProblem* IOPPtr, double _eps = 0.01,double _r=2.0, uint64_t _NMax=500): Min(IOPPtr, _eps,_r,_NMax) {
         eps = _eps;
@@ -126,10 +127,9 @@ public:
         
         double dev = (res.first - expected.first);
         //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
-        return (abs(dev) < eps);
-        
-        
+        return (abs(dev) < eps);    
     }
+
     void Show_info() {
         //if (!Min.IsSolved()) Test();
         Min.Show_info();
@@ -157,23 +157,20 @@ public:
 };
 
 
-void func(IOptProblemFamily* IOPFPtr,std::string filepath , double r, double eps, uint64_t NMax) {
+void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double eps, uint64_t NMax,const std::string& family_name) {
 	std::ofstream file;
 	file.open(filepath);
     uint64_t CorrectCount = 0;
     vector<unsigned long long> CountVec1(IOPFPtr->GetFamilySize());
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
-        //std::cout << "Тестируется THansenProblem" << i << "..." << std::endl;
+        std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         Tester Tes(IOPFPtr->operator[](i), eps, r);
         if (Tes.Test()) ++CorrectCount;
         Tes.Show_info();
-        //if (file.is_open()) {
-        //    file << "THansenProblem" << i << std::endl;
-        //    Tes.Show_info_in_file(file);
-       // }
         CountVec1[i] = Tes.GetCount();
     }
-    std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() << "." << std::endl << std::endl;
+    std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() <<" " << family_name 
+        << " family." << std::endl << std::endl;
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
     std::sort(CountVec1.begin(), CountVec1.end());
 
@@ -186,27 +183,23 @@ void func(IOptProblemFamily* IOPFPtr,std::string filepath , double r, double eps
         tmp = double(i + 1) / double(CountVec1.size());
         file << CountVec1[i] << ',' << tmp << "\n";
     }
-    if(CountVec1[i] == NMax) file << CountVec1[i] << ',' << tmp << "\n";
+    if (i < CountVec1.size() && CountVec1[i] == NMax) file << CountVec1[i] << ',' << tmp << "\n";
     file << '\n';
 }
 
 
 
 int main(int argc,char* argv[]) {
-   
-    
     
     std::string filepath = "results";
     
     if (argc > 1){ filepath = argv[1];}
-    double r = 2.0;
+    double r = 2;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if(argc > 3) eps = std::stod(argv[3]);
 
     setlocale(LC_ALL, "Russian");
-
-    
    
     //file.precision(6);
     
@@ -217,15 +210,13 @@ int main(int argc,char* argv[]) {
     THillProblemFamily HillFam;
     TShekelProblemFamily ShekFam;
     
-    vector<IOptProblemFamily*> vec = { &HFam,&HillFam,&ShekFam };
+    vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
 
     vector<std::string> names_vec = { "Hansen","Hill","Shekel" };
 
     for (size_t i=0;i<vec.size();++i) {
-		func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax);
+		func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax, names_vec[i]);
 	}
-
-
    
     return 0;
 }
