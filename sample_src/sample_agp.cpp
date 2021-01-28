@@ -13,7 +13,10 @@
 #include <fstream>
 
 #include <thread>
+#include <ctime>
+#include <omp.h>
 
+#define NUMTH 6
 //About style of naming. There is no style.
 
 using std::vector;
@@ -50,7 +53,7 @@ public:
         NMax = _NMax;
     }
    
-    dpair find_glob_min(bool stop_crit=false) {
+    dpair find_glob_min(bool stop_crit = false) {
         vector<pair<double, double> > vec;
         vec.push_back(dpair(a, IOPPtr->ComputeFunction({ a })));
         vec.push_back(dpair(b, IOPPtr->ComputeFunction({ b })));
@@ -81,22 +84,33 @@ public:
             ++count;
             vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const dpair& a, const dpair& b) {return a.first <= b.first; }), t1_pair); //No need for sorting, only to insert
         }
-        sol = vec[t+1]; solved = true;
-        return vec[t+1];
+        auto min = vec[t+1];
+        /*for (int i = 1; i < vec.size(); ++i) {
+            if (vec[i].second < min.second) {
+                min = vec[i];
+            }
+        }*/
+        sol = min; solved = true;
+        return min;
     }
 
-    dpair find_glob_min_threadver(size_t size) {
+    dpair find_glob_min_threadver() {
         vector<pair<double, double> > vec;
-        vec.push_back(dpair(a, IOPPtr->ComputeFunction({ a })));
-        vec.push_back(dpair(b, IOPPtr->ComputeFunction({ b })));
-        count = 2;
+        //vec.push_back(dpair(a, IOPPtr->ComputeFunction({ a })));
+        //vec.push_back(dpair(b, IOPPtr->ComputeFunction({ b })));
+        count = NUMTH + 1;
         double M = 0;
-        int k = 2;
+        int k = NUMTH+1;
         int iter_count = 0;
         size_t t = 0;
+        int tj_size = NUMTH;
         std::vector<std::pair<int, double> > tj_vec;
+        double h = (b - a) / NUMTH;
+        for (int i = 0; i <= NUMTH; ++i) {
+            vec.push_back(dpair(a + i*h, IOPPtr->ComputeFunction({ a + i * h })));
+        }
         for (; iter_count < NMax; k = vec.size()) {
-            int tj_size = (tj_vec.size() < size) ? tj_vec.size() : size;
+            //int tj_size = (tj_vec.NUMTH() < NUMTH) ? tj_vec.NUMTH() : NUMTH;
             for (int i = 0; i < (k - 1); ++i) {
                 if ((vec[i + 1].first - vec[i].first) < eps) {  // Можно искать только по интервалам tj, но ...
                     dpair min = vec[0];
@@ -115,40 +129,48 @@ public:
                 if (M_tmp > M)
                     M = M_tmp;
             }
-
             double m = 1.0;
             if (M != 0.0)
                 m = r * M;
-            tj_vec.clear();
+            tj_vec.resize(k - 1);
             double R;
             for (int i = 0; i < (k - 1); ++i) {
                 R = m * (vec[i + 1].first - vec[i].first) + (pow((vec[i + 1].second - vec[i].second), 2) /
                     (m * (vec[i + 1].first - vec[i].first))) - 2 * (vec[i + 1].second + vec[i].second);
-                tj_vec.push_back(dpair(i, R));
+                tj_vec[i] = (dpair(i, R));
             }
-            tj_size = (static_cast<int>(tj_vec.size()) < size) ? static_cast<int>(tj_vec.size()) : size;
+            
             for (int j = 0; j < tj_size; ++j) {  // Ставим на первые tj_size мест максимальные R
-                for (int l = j + 1; l < static_cast<int>(tj_vec.size()); ++l) {
+                for (int l = j + 1; l < (k - 1); ++l) {
                     if (tj_vec[l].second > tj_vec[j].second) {
                         std::swap(tj_vec[l], tj_vec[j]);
                     }
                 }
             }
-            double x_t0 = (vec[tj_vec[0].first + 1].first + vec[tj_vec[0].first].first) / 2 -
-                (vec[tj_vec[0].first + 1].second - vec[tj_vec[0].first].second) / (2 * m);
+            
             std::vector<dpair> tmp_vec(tj_size);
-            std::vector <std::thread> th_vec(tj_size);
+            //std::vector <std::thread> th_vec;
             for (int i = 0; i < tj_size; ++i) {
-                double x_t = (vec[tj_vec[i].first + 1].first + vec[tj_vec[i].first].first) / 2 -
+                tmp_vec[i].first = (vec[tj_vec[i].first + 1].first + vec[tj_vec[i].first].first) / 2 -
                     (vec[tj_vec[i].first + 1].second - vec[tj_vec[i].first].second) / (2 * m);
-                th_vec[i]=(thread ([](dpair* pair, IOptProblem* IOPPtr, double x_t) {
-                 //   std::cout << "1";
-                    *pair = dpair(x_t, IOPPtr->ComputeFunction({ x_t }));
-                    },  &tmp_vec[i], IOPPtr, x_t));
             }
-            for (auto&& th: th_vec) {
-                th.join();
+            #pragma omp parallel shared(tmp_vec) num_threads(NUMTH)
+            {
+                #pragma omp for
+                for (int i = 0; i < tj_size; ++i) {
+                    tmp_vec[i].second = IOPPtr->ComputeFunction({ tmp_vec[i].first });
+                }
             }
+            //for (int i = 0; i < tj_size; ++i) {
+            //    th_vec.push_back((thread([](dpair* pair, IOptProblem* IOPPtr, double x_t) {
+            //        // //   std::cout << "1";
+            //        *pair = dpair(x_t, IOPPtr->ComputeFunction({ x_t }));
+            //        }, &tmp_vec[i], IOPPtr, tmp_vec[i].first)));
+            //    //tmp_vec[i] = dpair(x_t, IOPPtr->ComputeFunction({ x_t }));
+            //}
+            //for (auto& th:th_vec) {
+            //    th.join();
+            //}
             for (auto& t_pair : tmp_vec) {
                 vec.insert(std::lower_bound(vec.begin(), vec.end(), t_pair,
                     [](const dpair& a, const dpair& b) {
@@ -290,7 +312,7 @@ public:
     }
 
     bool Test_par(size_t size = 5 ) {
-        dpair res = Min.find_glob_min_threadver(size);
+        dpair res = Min.find_glob_min_threadver();
 
         double dev = (res.first - expected.first);
         //std::cout << std::this_thread::get_id()<< ((abs(dev) < eps*2)? " YEEEEEEEEEEEEEEEEEES": " NOOOOOOOOOOOOOOOOOOO") << std::endl;
@@ -335,14 +357,17 @@ void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double ep
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         Tester Tes(IOPFPtr->operator[](i), eps, r, NMax);
-        bool tmp = Tes.Test(0);
+        //bool tmp = Tes.Test_par(10);
+        //Tes.Show_info();
+        bool tmp = Tes.Test(stop_crit);
         if (tmp) {
             ++CorrectCount;
-            std::cout << "YEP\n";
+            //std::cout << "YEP\n";
+
             ++CountVec1[Tes.GetCount()];
         }
         else {
-            std::cout << "NOPE\n";
+            std::cout << i<<" NOPE\n";
             Tes.Show_info();
         }
     }
@@ -353,7 +378,7 @@ void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double ep
     file << "sep=,\n";
     file << "0,0\n";
     double tmp;
-    int i=1;
+    int i;
     for (i = 1; i < CountVec1.size(); ++i) {
         CountVec1[i] += CountVec1[i - 1];
     }
@@ -374,7 +399,7 @@ int main(int argc,char* argv[]) {
     if (argc > 1){ filepath = argv[1];}
     double r = 5;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.0001;
+    double eps = 0.001;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -386,18 +411,19 @@ int main(int argc,char* argv[]) {
     //file.precision(6);
 
     //TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
-    uint64_t NMax = 50000;
+    uint64_t NMax = 500000;
     THansenProblemFamily HFam;
     THillProblemFamily HillFam;
     TShekelProblemFamily ShekFam;
 
     vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam };
 
-    vector<std::string> names_vec = { "Hansen","Hill","Shekel" };
-
+    vector<std::string> names_vec = { "Hansen" ,"Hill","Shekel" };
+    auto t1 = omp_get_wtime();
     for (size_t i = 0; i < vec.size();++i) {
         func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax, names_vec[i], stop_crit);
     }
-   
+    auto t2 = omp_get_wtime();
+    std::cout <<"Time: "<< t2 - t1 << std::endl;
     return 0;
 }
