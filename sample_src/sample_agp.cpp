@@ -26,9 +26,9 @@ using std::thread;
 //typedef pair<double, double> Trial;
 struct Trial {
     double x, z;
-    Trial(double x=0, double z=0) {
-        x = x;
-        z=z;
+    Trial(double _x = 0.0, double _z = 0.0) {
+        x = _x;
+        z = _z;
     }
 };
 
