@@ -178,7 +178,7 @@ class THansenProblem7 : public IOptProblem
   {
     double res = 0;
     for (int i = 1; i <= 5; i++)
-      res += i*cos((i + 1)*y[0] + i);
+      res += i * cos((i + 1) * y[0] + i);
     return -res;
   }
   virtual vector<double> ComputeDerivatives(int index, const vector<double>& y) const
