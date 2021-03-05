@@ -3,17 +3,15 @@
 #include "HansenProblemFamily.hpp"
 #include "Hill/HillProblemFamily.hpp"
 #include "Shekel/ShekelProblemFamily.hpp"
+#include "MyConstrainedProblem.h"
 
-
-//Code from https://github.com/MADZEROPIE/Global-Search-Method
 #include <functional> //for std::function
 #include <cmath>  //for math functions e.g. sin() or cos()
 #include <vector> 
 #include <algorithm>
 #include <fstream>
 
-#include <thread>
-#include <ctime>
+
 #include <omp.h>
 
 #define NUMTH 6
@@ -21,7 +19,6 @@
 
 using std::vector;
 using std::pair;
-using std::thread;
 
 //typedef pair<double, double> Trial;
 struct Trial {
@@ -32,15 +29,6 @@ struct Trial {
     }
 };
 
-struct ConsTrial {
-    double x, z;
-    std::vector<double> gj;
-    int maxindex;
-    ConsTrial(double x = 0, double z = 0) {
-        x = x;
-        z = z;
-    }
-};
 
 class Minimazer { //Don't ask me why... But only because using a sledge-hammer to crack a nut sounds fun.
 
@@ -122,7 +110,7 @@ public:
         //vec.push_back(Trial(b, IOPPtr->ComputeFunction({ b })));
         count = NUMTH + 1;
         double M = 0;
-        int k = NUMTH+1;
+        int k = NUMTH + 1;
         int iter_count = 0;
         size_t t = 0;
         int tj_size = NUMTH;
@@ -235,10 +223,12 @@ public:
 
     bool IsSolved() { return solved; }
 };
-//End of code from https://github.com/MADZEROPIE/Global-Search-Method
+
+//------------------------------------------------------------------------------------------\\
 
 
-class Minimazer2 { // TODO: Ancestor (parent) class
+
+class Minimazer2 { // TODO: Ancestor (parent) class. Or no.
 protected:
     std::function<double(double)> func; // Function that needs findin' minimum
     double a; // Beginning of the segment
@@ -253,6 +243,11 @@ protected:
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
 
+    ConsTrial make_trial(double x) {
+        ConsTrial tr;
+
+        return tr;
+    }
 public:
     Minimazer2(const std::function<double(double)>& _func, const std::vector<std::function<double(double)> >& _g_vec,
         const std::vector<double>& _e_vec, std::vector<double> _r,
@@ -303,6 +298,7 @@ public:
     bool IsSolved() { return solved; }
 };
 
+//------------------------------------------------------------------------------------------\\
 
 class Tester {
 private:
@@ -366,6 +362,7 @@ public:
 
 };
 
+//------------------------------------------------------------------------------------------\\
 
 void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit) {
     std::ofstream file;
@@ -397,7 +394,7 @@ void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double ep
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
     file << "sep=,\n";
-    file << "0,0\n";
+    //file << "0,0\n";
     double tmp;
     int i;
     for (i = 1; i < CountVec1.size(); ++i) {
@@ -411,40 +408,46 @@ void func(IOptProblemFamily* IOPFPtr, std::string filepath , double r, double ep
     file << '\n';
 }
 
-
+//------------------------------------------------------------------------------------------\\
 
 int main(int argc,char* argv[]) {
     
-    std::string filepath = "results";
-    
-    if (argc > 1){ filepath = argv[1];}
-    double r = 4;
-    if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.001;
-    if (argc > 3) eps = std::stod(argv[3]);
-    bool stop_crit = false;
-    if (argc > 4) {
-        stop_crit = (argv[4] == "ON");
-    }
+    //std::string filepath = "results";
+    //
+    //if (argc > 1){ filepath = argv[1];}
+    //double r = 4;
+    //if (argc > 2) r = std::stod(argv[2]);
+    //double eps = 0.001;
+    //if (argc > 3) eps = std::stod(argv[3]);
+    //bool stop_crit = false;
+    //if (argc > 4) {
+    //    stop_crit = (argv[4] == "ON");
+    //}
 
-    setlocale(LC_ALL, "Russian");
+    //setlocale(LC_ALL, "Russian");
 
-    //file.precision(6);
+    ////file.precision(6);
 
-    //TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
-    uint64_t NMax = 190000;
-    THansenProblemFamily HFam;
-    THillProblemFamily HillFam;
-    TShekelProblemFamily ShekFam;
+    ////TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
+    //uint64_t NMax = 250;
+    //THansenProblemFamily HFam;
+    //THillProblemFamily HillFam;
+    //TShekelProblemFamily ShekFam;
 
-    vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
+    //vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
 
-    vector<std::string> names_vec = { "Hansen" ,"Hill","Shekel" };
-    auto t1 = omp_get_wtime();
-    for (size_t i = 0; i < vec.size();++i) {
-        func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax, names_vec[i], stop_crit);
-    }
-    auto t2 = omp_get_wtime();
-    std::cout <<"Time: "<< t2 - t1 << std::endl;
+    //vector<std::string> names_vec = { "Hansen" ,"Hill", "Shekel" };
+    //auto t1 = omp_get_wtime();
+    //for (size_t i = 0; i < vec.size();++i) {
+    //    func(vec[i], filepath + names_vec[i] + ".csv", r, eps, NMax, names_vec[i], stop_crit);
+    //}
+    //auto t2 = omp_get_wtime();
+    //std::cout <<"Time: "<< t2 - t1 << std::endl;
+
+    MyConstrainedProblemGenerator gen;
+
+    auto pr_vec = gen.GenerateNProblems(10, SheckelOnly, 3);
+    std::cout << pr_vec[3]->GetOptimumPoint() <<" "<< pr_vec[3]->GetOptimumValue();
+
     return 0;
 }
