@@ -446,8 +446,8 @@ int main(int argc,char* argv[]) {
 
     MyConstrainedProblemGenerator gen;
 
-    auto pr_vec = gen.GenerateNProblems(10, SheckelOnly, 3);
-    std::cout << pr_vec[3]->GetOptimumPoint() <<" "<< pr_vec[3]->GetOptimumValue();
+    auto pr_vec = gen.GenerateNProblems(100, HillOnly, 300, 0.2);
+    //std::cout << pr_vec[0]->GetOptimumPoint() <<" "<< pr_vec[0]->GetOptimumValue();
 
     return 0;
 }

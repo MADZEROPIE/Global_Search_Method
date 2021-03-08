@@ -1,5 +1,6 @@
 #pragma once
 #include "../sample_src/Shekel/ShekelProblem.hpp"
+#include "../sample_src/Hill/HillProblem.hpp"
 #include <functional>
 
 extern double kShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
@@ -8,6 +9,12 @@ extern double cShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
 extern double minShekel[NUM_SHEKEL_PROBLEMS][2];
 extern double maxShekel[NUM_SHEKEL_PROBLEMS][2];
 extern double lConstantShekel[NUM_SHEKEL_PROBLEMS];
+
+extern double aHill[NUM_HILL_PROBLEMS][NUM_HILL_COEFF];
+extern double bHill[NUM_HILL_PROBLEMS][NUM_HILL_COEFF];
+extern double minHill[NUM_HILL_PROBLEMS][2];
+extern double maxHill[NUM_HILL_PROBLEMS][2];
+extern double lConstantHill[NUM_HILL_PROBLEMS];
 
 struct ConsTrial {
     double x, z;
@@ -74,6 +81,27 @@ public:
         {
             res = res - 1 / (kShekel[index][j] * pow(x - aShekel[index][j], 2.0) +
                 cShekel[index][j]);
+        }
+        return res - delta;
+    }
+    double Compute(double x) { return this->operator()(x); }
+};
+
+class MyHillFunction : public MyOptFunction {
+private:
+    uint index;
+    double delta;
+public:
+    MyHillFunction(uint _index, double _delta) {
+        index = _index; delta = _delta;
+    }
+    double operator() (double x) {
+        double res = 0.0;
+
+        for (int i = 0; i < NUM_HILL_COEFF; i++)
+        {
+            res = res + aHill[index][i] * sin(2 * i * M_PI * x) + bHill[index][i] *
+                sin(2 * i * M_PI * x);
         }
         return res - delta;
     }
