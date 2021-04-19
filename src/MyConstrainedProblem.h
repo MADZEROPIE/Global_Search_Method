@@ -32,8 +32,7 @@ public:
     virtual double Compute(double x) = 0;
 };
 
-class MyConstrainedProblem
-{
+class MyConstrainedProblem {
 protected:
     double OptimalPoint;
     double OptimalValue;
@@ -54,7 +53,9 @@ public:
 
     double ComputeFunction(double x) const;
     double ComputeGjConstr(uint i, double x) const; // i==m return ComputeFunction
-
+    void GetBounds(double& a, double& b) const {
+        a = LoBound; b = UpBound;
+    }
     /// Get global minimizer
     double GetOptimumPoint() const;
     /// Get global minimum value
@@ -109,8 +110,6 @@ public:
 };
 
 class MyConstrainedProblemGenerator {
-protected:
-    std::pair<double, double> FindOptimalPoint();
 public:
     MyConstrainedProblem* Generate(MyConstrPrType type, uint m, double delta = 0.1, uint seed = 0);
     vector<MyConstrainedProblem*> GenerateNProblems(uint n, MyConstrPrType type, uint m, double delta = 0.01, uint seed = 0);
