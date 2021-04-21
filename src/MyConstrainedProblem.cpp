@@ -45,6 +45,9 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
     MyOptFunction* func;
     double LoBound;
     double UpBound;
+    std::mt19937 gen;
+    gen.seed(seed);
+
 
     if (type == SheckelOnly) {
         try
@@ -53,7 +56,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
         UpBound = 10.0;
         std::vector<int> SheckelIndex(m + 1u);
         for (uint i = 0; i <= m; ++i) {
-            SheckelIndex[i] = rand() % NUM_SHEKEL_PROBLEMS;
+            SheckelIndex[i] = gen() % NUM_SHEKEL_PROBLEMS;
             for (uint j = 0; j < i; ++j) {
                 if (SheckelIndex[i] == SheckelIndex[j]) {
                     --i; 
@@ -124,7 +127,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
         UpBound = 1.0;
         std::vector<int> HillIndex(m + 1u);
         for (uint i = 0; i <= m; ++i) {
-            HillIndex[i] = rand() % NUM_SHEKEL_PROBLEMS;
+            HillIndex[i] = gen() % NUM_HILL_PROBLEMS;
             for (uint j = 0; j < i; ++j) {
                 if (HillIndex[i] == HillIndex[j]) {
                     --i;
@@ -176,7 +179,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
             throw "Something bad happened while generation";
         }
         problem = new MyConstrainedProblem(OptimalPoint, OptimalValue, LoBound, UpBound, m, g_vec, func);
-        std::cout << OptimalPoint << " " << OptimalValue << '\n' << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << '\n';
+        //std::cout << OptimalPoint << " " << OptimalValue << '\n' << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << '\n';
     }
     return problem;
 }
@@ -185,7 +188,7 @@ vector<MyConstrainedProblem*> MyConstrainedProblemGenerator::GenerateNProblems(u
 {
     vector<MyConstrainedProblem*> problemVec(n);
     for (int i = 0; i < n; ++i) {
-        problemVec[i] = MyConstrainedProblemGenerator::Generate(type, m, delta, seed);
+        problemVec[i] = MyConstrainedProblemGenerator::Generate(type, m, delta, seed+i);
     }
     return problemVec;
 }

@@ -2,6 +2,7 @@
 #include "../sample_src/Shekel/ShekelProblem.hpp"
 #include "../sample_src/Hill/HillProblem.hpp"
 #include <functional>
+#include <random>
 
 extern double kShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
 extern double aShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
