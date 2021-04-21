@@ -16,11 +16,11 @@ public:
     Tester2(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) : Min(MCPtr, _r, _eps, _NMax) {
         eps = _eps;
         auto exp_tmp = MCPtr->GetOptimumPoint();
-        /*if (abs(IOPPtr->GetOptimumValue() - IOPPtr->ComputeFunction(exp_tmp)) > 0.001) {
+        if (abs(MCPtr->GetOptimumValue() - MCPtr->ComputeFunction(exp_tmp)) > 0.0001) {
             std::cout.precision(10);
-            std::cout << IOPPtr->GetOptimumValue() << " " << IOPPtr->ComputeFunction(exp_tmp) << std::endl;
+            std::cout << MCPtr->GetOptimumValue() << " " << MCPtr->ComputeFunction(exp_tmp) << std::endl;
             std::cout << "INCORRECT OPTIMUM VALUE OR POINT" << std::endl;
-        }*/
+        }
         //expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
         expected = ConsTrial(exp_tmp, MCPtr->ComputeFunction(exp_tmp));
     }
@@ -28,9 +28,10 @@ public:
     bool Test(bool stop_crit) {
         ConsTrial res = Min.find_glob_min(stop_crit);
 
-        double dev = (res.x - expected.x);
-        //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
-        return (abs(dev) < eps || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
+        double dev = abs(res.x - expected.x);
+        bool r1 = (abs(dev) < eps);
+        std::cout<<((r1)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
+        return r1;// || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
     }
 
 
@@ -72,16 +73,16 @@ void func2(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vecto
         Tester2 Tes(IOPFPtr->operator[](i), r, eps, NMax);
         //bool tmp = Tes.Test_par();
         bool tmp = Tes.Test(stop_crit);
-        Tes.Show_info();
+        
         if (tmp) {
             ++CorrectCount;
-            //std::cout << "YEP\n";
-
+            std::cout << i << " YEP\n";
+            Tes.Show_info();
             ++CountVec1[Tes.GetCount()];
         }
         else {
-            //std::cout << i << " NOPE\n";
-            //Tes.Show_info();
+            std::cout << i << " NOPE\n";
+            Tes.Show_info();
         }
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() << " " << family_name

@@ -67,7 +67,7 @@ public:
         }
         double max_eps = b - a;
         int t = 0;
-        while (max_eps > eps) {
+        while (max_eps >= eps) {
             for (int i = 0; i <= m; ++i) {  // Could be done in parallel
                 int s = Vvec[i].size();
                 for (int j = 0; j < s - 1; ++j) {
@@ -78,8 +78,10 @@ public:
                 }
                 //if (mv[i] == 0) mv[i] = 1; //???
                 //else mv[i] = r[i] * mv[i];
-                //ev[i] = mv[i] * q;
+                ev[i] = mv[i] * q * eps;
             }
+
+
             for (int i = 0; i <= m; ++i) {  // Could be done in parallel
                 if (Vvec[i].size() != 0) {
                     double z_tmp = Vvec[i][0].z;
@@ -131,17 +133,21 @@ public:
             max_eps = std::min(vec[t + 1].x - x_new, x_new - vec[t].x);
             vec.insert(vec.begin() + t + 1, tr);
             Vvec[tr.index].push_back(tr);  // TODO: INSERT WITH BINARY SEARCH
-            std::sort(Vvec[tr.index].begin(), Vvec[tr.index].end(), [](const ConsTrial& a, const ConsTrial& b) {return a.x < b.x; });
+            std::sort(Vvec[tr.index].begin(), Vvec[tr.index].end(), [](const ConsTrial& a, const ConsTrial& b) { return a.x < b.x; });
             ++count;
-            std::cout << tr.x << " " << tr.z << '\n';
-        }
+            //std::cout << tr.x << " " << tr.z << '\n';
 
-        sol = Vvec[m][0];  // NEED TEST
-        for (int i = 1; i < Vvec[m].size(); ++i) {
-            if (sol.z > Vvec[m][i].z)
-                sol = Vvec[m][i];
+
         }
-        solved = true;
+        //if (Vvec[m].size() > 0) {
+        //    sol = Vvec[m][0];
+        //    for (int i = 1; i < Vvec[m].size(); ++i) {
+        //        if (sol.z > Vvec[m][i].z)
+        //            sol = Vvec[m][i];
+        //    }
+        //    solved = true;
+        //}
+        sol = vec[t + 1];
         return sol;
     }
 

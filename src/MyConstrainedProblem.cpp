@@ -50,8 +50,8 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
 
 
     if (type == SheckelOnly) {
-        try
-        {
+        //try
+        //{
         LoBound = 0.0;
         UpBound = 10.0;
         std::vector<int> SheckelIndex(m + 1u);
@@ -78,7 +78,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
         func = new MySheckelFunction(SheckelIndex[m], 0.0); 
 
         //--Findin' minimum
-        const int steps = 1000000;
+        const int steps = 100000;
         const double h = (UpBound - LoBound) / steps;
         bool flag = false;
         double x = LoBound;
@@ -116,11 +116,11 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
 
         problem = new MyConstrainedProblem(OptimalPoint, OptimalValue, LoBound, UpBound, m, g_vec, func);
         //std::cout << OptimalPoint << " " << OptimalValue << '\n' << minShekel[SheckelIndex[m]][1] << " " << minShekel[SheckelIndex[m]][0] << '\n';
-        }
+       /* }
         catch (std::vector<int>& SheckelIndex)
         {
             
-        }
+        }*/
     }
     else if (HillOnly) {
         LoBound = 0.0;
@@ -150,6 +150,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
 
         //--Findin' minimum
         const int steps = 100000;
+        int k = 0;
         const double h = (UpBound - LoBound) / steps;
         bool flag = false;
         double x = LoBound;
@@ -161,6 +162,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
                 flag = true;
                 OptimalPoint = x;
                 OptimalValue = func->Compute(x);
+                ++k;
             }
         }
         for (; x < UpBound; x += h) {
@@ -168,6 +170,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
             int i = 0;
             for (; i < m && (z = g_vec[i]->Compute(x)) <= 0.0; ++i);
             if (i == m) {
+                ++k;
                 z = func->Compute(x);
                 if (z < OptimalValue) {
                     OptimalPoint = x;
@@ -179,7 +182,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
             throw "Something bad happened while generation";
         }
         problem = new MyConstrainedProblem(OptimalPoint, OptimalValue, LoBound, UpBound, m, g_vec, func);
-        //std::cout << OptimalPoint << " " << OptimalValue << '\n' << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << '\n';
+        std::cout <<double(k)/steps * 100 <<"% "<< OptimalPoint << " " << OptimalValue << '\n' << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << "\n \n";
     }
     return problem;
 }
@@ -187,8 +190,11 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
 vector<MyConstrainedProblem*> MyConstrainedProblemGenerator::GenerateNProblems(uint n, MyConstrPrType type, uint m, double delta, uint seed)
 {
     vector<MyConstrainedProblem*> problemVec(n);
+    std::mt19937 gen;
+    gen.seed(seed);
     for (int i = 0; i < n; ++i) {
-        problemVec[i] = MyConstrainedProblemGenerator::Generate(type, m, delta, seed+i);
+        std::cout << i << " ";
+        problemVec[i] = MyConstrainedProblemGenerator::Generate(type, m, delta, gen());
     }
     return problemVec;
 }

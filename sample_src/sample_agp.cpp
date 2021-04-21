@@ -27,7 +27,7 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 7;
+    double r = 6;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
@@ -60,8 +60,10 @@ int main(int argc,char* argv[]) {
     //--TESTS--
 
     int n = 10;
-    int m = 20;
-    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 0.1, 1);
+    int m = 3;
+    std::cout << "Генерируется семейство функций...\n";
+    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, -0.5, 1);
+    std::cout << "Генерация завершена...\n";
     vector<double> cr(m + 1);
     for (auto& r1 : cr) {
         r1 = r;
