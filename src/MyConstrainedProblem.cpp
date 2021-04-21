@@ -60,7 +60,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
             for (uint j = 0; j < i; ++j) {
                 if (SheckelIndex[i] == SheckelIndex[j]) {
                     --i; 
-                    j = i;
+                    break;
                 }
             }
         }

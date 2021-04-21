@@ -27,9 +27,9 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 4;
+    double r = 7;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.001;
+    double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -59,9 +59,9 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    int n = 1;
-    int m = 5;
-    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m);
+    int n = 10;
+    int m = 20;
+    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 0.1, 1);
     vector<double> cr(m + 1);
     for (auto& r1 : cr) {
         r1 = r;

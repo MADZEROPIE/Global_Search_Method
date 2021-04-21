@@ -30,7 +30,7 @@ public:
 
         double dev = (res.x - expected.x);
         //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
-        return (abs(dev) < eps || abs(res.z - expected.z) < 7e-5); // Is this LEGAL? Well, no, but...
+        return (abs(dev) < eps || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
     }
 
 
@@ -71,8 +71,8 @@ void func2(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vecto
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         Tester2 Tes(IOPFPtr->operator[](i), r, eps, NMax);
         //bool tmp = Tes.Test_par();
-        //Tes.Show_info();
         bool tmp = Tes.Test(stop_crit);
+        Tes.Show_info();
         if (tmp) {
             ++CorrectCount;
             //std::cout << "YEP\n";
