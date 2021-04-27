@@ -9,7 +9,7 @@ public:
 		fam = MCPGen.GenerateNProblems(n, type, m, delta, seed);
 	}
 
-	MyConstrainedProblem* operator[](int ind) {
+	MyConstrainedProblem* operator[](int ind) const{
 		return fam[ind];
 	}
 

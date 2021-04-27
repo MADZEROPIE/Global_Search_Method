@@ -54,8 +54,8 @@ public:
         dim = IOPPtr->GetDimension();
     }
 
-    TrialD find_glob_min_fixed_index(std::vector<double>& x, int index, bool stop_crit = false) {
-        if (index >= dim) return TrialD(x, IOPPtr->ComputeFunction(x));
+     void find_glob_min_fixed_index(std::vector<double>& x, int index, bool stop_crit = false) {
+        if (index >= dim) return;
         vector<TrialD> vec;
         auto lb = x;
         auto rb = x;
@@ -105,8 +105,7 @@ public:
                 x = vec[i].x;
             }
         }
-        sol = min; solved = true;
-        return min;
+        sol = min;
     }
 
     TrialD find_glob_min(bool stop_crit = false) {

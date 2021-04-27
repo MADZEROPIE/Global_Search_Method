@@ -31,7 +31,7 @@ public:
 
         double dev = abs(res.x[0] - expected.x[0]);
         for (int i = 1; i < dim; ++i) {
-            dev = std::min(dev, res.x[i] - expected.x[i]);
+            dev = std::max(dev, res.x[i] - expected.x[i]);
         }
         //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
         return (abs(dev) < eps || abs(res.z - expected.z) < 7e-5); // Is this LEGAL? Well, no, but...
@@ -79,35 +79,35 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     file.open(filepath);
     uint64_t CorrectCount = 0;
     vector<int> CountVec1(10000000);//NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
-    for (int i = 0; i <= NMax; ++i) {
+    /*for (int i = 0; i <= NMax; ++i) {
         CountVec1[i] = 0;
-    }
+    }*/
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
         bool tmp = Tes.Test(stop_crit);
         std::cout << i << " ";
-        //Tes.Show_info();
         if (tmp) {
             ++CorrectCount;
-            //std::cout << "YEP\n";
+            std::cout << "YEP\n";
 
-            ++CountVec1[Tes.GetCount()];
+            //++CountVec1[Tes.GetCount()];
         }
         else {
-            //std::cout << i << " NOPE\n";
+            std::cout << i << " NOPE\n";
             //Tes.Show_info();
         }
+        Tes.Show_info();
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() << " " << family_name
         << " family." << std::endl << std::endl;
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
-    file << "sep=,\n";
+    //file << "sep=,\n";
     //file << "0,0\n";
     double tmp;
     int i;
-    for (i = 1; i < CountVec1.size(); ++i) {
+    /*for (i = 1; i < CountVec1.size(); ++i) {
         CountVec1[i] += CountVec1[i - 1];
     }
     for (i = 0; i < CountVec1.size(); ++i) {
@@ -115,5 +115,5 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         file << i << ',' << tmp << "\n";
         for (; (i + 1) < CountVec1.size() && CountVec1[i + 1] == CountVec1[i]; ++i);
     }
-    file << '\n';
+    file << '\n';*/
 }

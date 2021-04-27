@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 100;
+    double q = 0;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -106,15 +106,15 @@ public:
                 if (vec[i].index == vec[i + 1].index) {
                     auto v = vec[i].index;
                     R_tmp = vec[i + 1].x - vec[i].x + (vec[i + 1].z - vec[i].z) * (vec[i + 1].z - vec[i].z) /  // I know, I know...
-                        (r[v] * r[v] * mv[v] * mv[v] * vec[i + 1].x - vec[i].x) - 2 * (vec[i + 1].z + vec[i].z - 2 * zv[v]) / (r[v] * mv[v]);
+                        (r[v] * r[v] * mv[v] * mv[v] * (vec[i + 1].x - vec[i].x)) - 2 * (vec[i + 1].z + vec[i].z - 2 * zv[v]) / (r[v] * mv[v]);
                 }
                 else if (vec[i].index < vec[i + 1].index) {
                     auto v = vec[i + 1].index;
-                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i + 1].z - zv[v]) / r[v] * mv[v];
+                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i + 1].z - zv[v]) / (r[v] * mv[v]);
                 }
                 else {
                     auto v = vec[i].index;
-                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i].z - zv[v]) / r[v] * mv[v];
+                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i].z - zv[v]) / (r[v] * mv[v]);
                 }
                 if (R_tmp > R) {
                     t = i;
@@ -137,17 +137,37 @@ public:
             ++count;
             //std::cout << tr.x << " " << tr.z << '\n';
 
-
         }
-        //if (Vvec[m].size() > 0) {
-        //    sol = Vvec[m][0];
-        //    for (int i = 1; i < Vvec[m].size(); ++i) {
-        //        if (sol.z > Vvec[m][i].z)
-        //            sol = Vvec[m][i];
-        //    }
-        //    solved = true;
-        //}
-        sol = vec[t + 1];
+        if (Vvec[m].size() > 0) {
+            sol = Vvec[m][0];
+            for (int i = 1; i < Vvec[m].size(); ++i) {
+                if (sol.z > Vvec[m][i].z)
+                    sol = Vvec[m][i];
+            }
+            solved = true;
+        }
+        //sol = vec[t + 1];
+        return sol;
+    }
+
+    ConsTrial find_glob_min_BF(uint64_t steps = 100000) {
+        double h = (b - a) / steps;
+        double x = a;
+        bool flag = false;
+        for (; x <= b && !flag; x += h) {
+            auto tr = make_trial(x);
+            if (tr.index == m) {
+                sol = tr;
+                flag = true;
+                solved = true;
+            }
+        }
+        for (; x <= b; x += h) {
+            auto tr = make_trial(x);
+            if (tr.index == m && tr.z < sol.z) {
+                sol = tr; 
+            }
+        }
         return sol;
     }
 

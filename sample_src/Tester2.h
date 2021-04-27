@@ -31,7 +31,16 @@ public:
         double dev = abs(res.x - expected.x);
         bool r1 = (abs(dev) < eps);
         std::cout<<((r1)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
-        return r1;// || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
+        return r1; // || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
+    }
+
+    bool Test_BF(uint64_t steps = 1000000) {
+        ConsTrial res = Min.find_glob_min_BF(steps);
+
+        double dev = abs(res.x - expected.x);
+        bool r1 = (abs(dev) < eps);
+        std::cout << ((r1) ? "YEEEEEEEEEEEEEEEEEES" : "NOOOOOOOOOOOOOOOOOOO") << std::endl;
+        return r1; // || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
     }
 
 
@@ -73,7 +82,7 @@ void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vect
         MyTester Tes(IOPFPtr->operator[](i), r, eps, NMax);
         //bool tmp = Tes.Test_par();
         bool tmp = Tes.Test(stop_crit);
-        
+        //bool tmp = Tes.Test_BF();
         if (tmp) {
             ++CorrectCount;
             std::cout << i << " YEP\n";

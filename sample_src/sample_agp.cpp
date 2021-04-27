@@ -29,9 +29,9 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 6;
+    double r = 4.5;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.001;
+    double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -61,8 +61,8 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    /*int n = 10;
-    int m = 3;
+    int n = 10;
+    int m = 5;
     std::cout << "Генерируется семейство функций...\n";
     MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, -0.5, 1);
     std::cout << "Генерация завершена...\n";
@@ -73,30 +73,30 @@ int main(int argc,char* argv[]) {
     auto t1 = omp_get_wtime();
     Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
     auto t2 = omp_get_wtime();
-    std::cout << "Time: " << t2 - t1 << std::endl;*/
+    std::cout << "Time: " << t2 - t1 << std::endl;
 
-    TGrishaginProblemFamily fam;
+    //TGrishaginProblemFamily fam;
     //func2(&fam, "Grishagin.txt", r, eps, 50000, "Grishagin", false);
 
-    int a;
+    //int a;
     //std::cin >> a;
 
-    TGKLSProblemFamily fam2;
-    //func2(&fam2, "GKLS.txt", r, eps, 500000, "GKLS", false);
+    //TGKLSProblemFamily fam2(3);
+    //func2(&fam2, "GKLS.txt", r, eps, 50000000000, "GKLS", false);
 
-    THansenProblemFamily HFam;
-    THillProblemFamily HillFam;
-    TShekelProblemFamily ShekFam;
+    //THansenProblemFamily HFam;
+    //THillProblemFamily HillFam;
+    //TShekelProblemFamily ShekFam;
 
-    vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
+    //vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
 
-    vector<std::string> names_vecD = { "HansenD" ,"HillD", "ShekelD" };
-    auto t1 = omp_get_wtime();
-    for (size_t i = 0; i < vec.size();++i) {
-        func2(vec[i], filepath + names_vecD[i] + ".csv", r, eps, NMax, names_vecD[i], stop_crit);
-    }
-    auto t2 = omp_get_wtime();
-    std::cout <<"Time: "<< t2 - t1 << std::endl;
+    //vector<std::string> names_vecD = { "HansenD" ,"HillD", "ShekelD" };
+    //auto t1 = omp_get_wtime();
+    //for (size_t i = 0; i < vec.size();++i) {
+    //    func2(vec[i], filepath + names_vecD[i] + ".csv", r, eps, NMax, names_vecD[i], stop_crit);
+    //}
+    //auto t2 = omp_get_wtime();
+    //std::cout <<"Time: "<< t2 - t1 << std::endl;
 
     /*//int maxind = 0;
     //double maxdiff = 0.0;

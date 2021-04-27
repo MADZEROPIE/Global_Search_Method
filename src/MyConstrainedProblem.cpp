@@ -154,7 +154,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
         const double h = (UpBound - LoBound) / steps;
         bool flag = false;
         double x = LoBound;
-        for (; x < UpBound && !flag; x += h) {
+        for (; x <= UpBound && !flag; x += h) {
             double z;
             int i = 0;
             for (; i < m && (g_vec[i]->Compute(x) <= 0.0); ++i);
@@ -182,7 +182,8 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
             throw "Something bad happened while generation";
         }
         problem = new MyConstrainedProblem(OptimalPoint, OptimalValue, LoBound, UpBound, m, g_vec, func);
-        std::cout <<double(k)/steps * 100 <<"% "<< OptimalPoint << " " << OptimalValue << '\n' << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << "\n \n";
+        std::cout <<double(k)/(steps + 1) * 100 <<"% "<< OptimalPoint << " " << OptimalValue << '\n'
+            << minHill[HillIndex[m]][1] << " " << minHill[HillIndex[m]][0] << "\n \n";
     }
     return problem;
 }
