@@ -78,7 +78,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
-    vector<int> CountVec1(NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
+    vector<int> CountVec1(10000000);//NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
     for (int i = 0; i <= NMax; ++i) {
         CountVec1[i] = 0;
     }
@@ -87,7 +87,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
         bool tmp = Tes.Test(stop_crit);
         std::cout << i << " ";
-        Tes.Show_info();
+        //Tes.Show_info();
         if (tmp) {
             ++CorrectCount;
             //std::cout << "YEP\n";

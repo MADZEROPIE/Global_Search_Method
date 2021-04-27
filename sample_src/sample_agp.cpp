@@ -29,7 +29,7 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 450;
+    double r = 6;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.001;
     if (argc > 3) eps = std::stod(argv[3]);
@@ -43,7 +43,7 @@ int main(int argc,char* argv[]) {
     ////file.precision(6);
 
     //TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
-    uint64_t NMax = 250;
+    uint64_t NMax = 500;
     //THansenProblemFamily HFam;
     //THillProblemFamily HillFam;
     //TShekelProblemFamily ShekFam;
@@ -76,13 +76,27 @@ int main(int argc,char* argv[]) {
     std::cout << "Time: " << t2 - t1 << std::endl;*/
 
     TGrishaginProblemFamily fam;
-    func2(&fam, "Grishagin.txt", r, eps, 500000, "Grishagin", true);
+    //func2(&fam, "Grishagin.txt", r, eps, 50000, "Grishagin", false);
 
     int a;
-    std::cin >> a;
+    //std::cin >> a;
 
     TGKLSProblemFamily fam2;
-    func2(&fam2, "GKLS.txt", r, eps, 500000, "GKLS", false);
+    //func2(&fam2, "GKLS.txt", r, eps, 500000, "GKLS", false);
+
+    THansenProblemFamily HFam;
+    THillProblemFamily HillFam;
+    TShekelProblemFamily ShekFam;
+
+    vector<IOptProblemFamily*> vec = { &HFam, & HillFam, & ShekFam};
+
+    vector<std::string> names_vecD = { "HansenD" ,"HillD", "ShekelD" };
+    auto t1 = omp_get_wtime();
+    for (size_t i = 0; i < vec.size();++i) {
+        func2(vec[i], filepath + names_vecD[i] + ".csv", r, eps, NMax, names_vecD[i], stop_crit);
+    }
+    auto t2 = omp_get_wtime();
+    std::cout <<"Time: "<< t2 - t1 << std::endl;
 
     /*//int maxind = 0;
     //double maxdiff = 0.0;

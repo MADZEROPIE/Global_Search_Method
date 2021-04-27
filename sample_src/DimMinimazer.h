@@ -68,7 +68,9 @@ public:
         size_t t = 0;
         M = abs((vec[1].z - vec[0].z) / (vec[1].x[index] - vec[0].x[index]));
         for (; ((stop_crit && abs(vec[t + 1].x[index] - IOPPtr->GetOptimumPoint()[index]) > eps)
-            || (!stop_crit && (vec[t + 1].x[index] - vec[t].x[index] >= eps))); ++k) {
+            || (!stop_crit && (vec[t + 1].x[index] - vec[t].x[index] >= eps)))
+            && count<NMax; ++k) {
+
             find_glob_min_fixed_index(x, index + 1, stop_crit);
             for (size_t i = 0; i < (k - 1u); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[index] - vec[i].x[index]));
@@ -100,6 +102,7 @@ public:
         for (int i = 0; i < vec.size(); ++i) {
             if (vec[i].z < min.z) {
                 min = vec[i];
+                x = vec[i].x;
             }
         }
         sol = min; solved = true;
@@ -118,7 +121,7 @@ public:
         M = abs((vec[1].z - vec[0].z) / (vec[1].x[0] - vec[0].x[0]));
         for (; ((stop_crit && abs(vec[t + 1].x[0] - IOPPtr->GetOptimumPoint()[0]) > eps)
             || (!stop_crit && (vec[t + 1].x[0] - vec[t].x[0] >= eps)))
-            && k < NMax; ++k) {
+            && count < NMax; ++k) {
             find_glob_min_fixed_index(x, 1, stop_crit);
             for (size_t i = 0; i < (k - 1u); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[0] - vec[i].x[0]));
