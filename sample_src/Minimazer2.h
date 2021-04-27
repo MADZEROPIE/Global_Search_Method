@@ -11,7 +11,7 @@
 
 #include <omp.h>
 
-class Minimazer2 { // TODO: Ancestor (parent) class. Or no.
+class MyMinimazer { // TODO: Ancestor (parent) class. Or no.
 protected:
     //std::function<double(double)> func; // Function that needs findin' minimum
     double a; // Beginning of the segment
@@ -44,7 +44,7 @@ protected:
         return tr;
     }
 public:
-    Minimazer2(MyConstrainedProblem* _MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) {
+    MyMinimazer(MyConstrainedProblem* _MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) {
         MCPtr = _MCPtr;
         m = MCPtr->GetNumberofConstr();
         MCPtr->GetBounds(a, b);

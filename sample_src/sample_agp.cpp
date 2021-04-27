@@ -15,10 +15,12 @@
 #include <omp.h>
 
 #include "Tester.h"
-#include <MyConstrainedProblemFamily.h>
+
+#include "MyConstrainedProblemFamily.h"
 #include "Tester2.h"
 
-
+#include "TesterD.h"
+#include "GKLS/GKLSProblemFamily.hpp"
 
 
 //------------------------------------------------------------------------------------------\\
@@ -27,9 +29,9 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 6;
+    double r = 450;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.01;
+    double eps = 0.001;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -59,7 +61,7 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    int n = 10;
+    /*int n = 10;
     int m = 3;
     std::cout << "Генерируется семейство функций...\n";
     MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, -0.5, 1);
@@ -69,10 +71,18 @@ int main(int argc,char* argv[]) {
         r1 = r;
     }
     auto t1 = omp_get_wtime();
-    func2(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
+    Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
     auto t2 = omp_get_wtime();
-    std::cout << "Time: " << t2 - t1 << std::endl;
+    std::cout << "Time: " << t2 - t1 << std::endl;*/
 
+    TGrishaginProblemFamily fam;
+    func2(&fam, "Grishagin.txt", r, eps, 500000, "Grishagin", true);
+
+    int a;
+    std::cin >> a;
+
+    TGKLSProblemFamily fam2;
+    func2(&fam2, "GKLS.txt", r, eps, 500000, "GKLS", false);
 
     /*//int maxind = 0;
     //double maxdiff = 0.0;

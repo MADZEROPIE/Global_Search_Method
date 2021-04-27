@@ -5,15 +5,15 @@
 #include "MyConstrainedProblemFamily.h"
 
 
-class Tester2 {
+class MyTester {
 private:
-    Minimazer2 Min;
+    MyMinimazer Min;
     ConsTrial expected;
     ConsTrial deviation;
     double eps;
 
 public:
-    Tester2(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) : Min(MCPtr, _r, _eps, _NMax) {
+    MyTester(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) : Min(MCPtr, _r, _eps, _NMax) {
         eps = _eps;
         auto exp_tmp = MCPtr->GetOptimumPoint();
         if (abs(MCPtr->GetOptimumValue() - MCPtr->ComputeFunction(exp_tmp)) > 0.0001) {
@@ -60,7 +60,7 @@ public:
 
 };
 
-void func2(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vector<double> r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit) {
+void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vector<double> r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit) {
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
@@ -70,7 +70,7 @@ void func2(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vecto
     }
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
-        Tester2 Tes(IOPFPtr->operator[](i), r, eps, NMax);
+        MyTester Tes(IOPFPtr->operator[](i), r, eps, NMax);
         //bool tmp = Tes.Test_par();
         bool tmp = Tes.Test(stop_crit);
         
