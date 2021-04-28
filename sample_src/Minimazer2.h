@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 0;
+    double q = 0.01;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -69,6 +69,7 @@ public:
         int t = 0;
         while (max_eps >= eps) {
             for (int i = 0; i <= m; ++i) {  // Could be done in parallel
+                mv[i] = 0;
                 int s = Vvec[i].size();
                 for (int j = 0; j < s - 1; ++j) {
                     double M_tmp = abs(Vvec[i][j + 1].z - Vvec[i][j].z) / (Vvec[i][j + 1].x - Vvec[i][j].x);
@@ -76,7 +77,7 @@ public:
                         mv[i] = M_tmp;
 
                 }
-                //if (mv[i] == 0) mv[i] = 1; //???
+                if (mv[i] == 0) mv[i] = 1; //???
                 //else mv[i] = r[i] * mv[i];
                 ev[i] = mv[i] * q * eps;
             }
@@ -168,6 +169,7 @@ public:
                 sol = tr; 
             }
         }
+        count = steps + 1;
         return sol;
     }
 
