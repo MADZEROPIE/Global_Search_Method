@@ -8,10 +8,9 @@
 #include <algorithm>
 #include <fstream>
 
-
 #include <omp.h>
 
-#define NUMTH 6
+//#define NUMTH 6
 //About style of naming. There is no style.
 
 using std::vector;
@@ -54,7 +53,7 @@ public:
         dim = IOPPtr->GetDimension();
     }
 
-     void find_glob_min_fixed_index(std::vector<double>& x, int index, bool stop_crit = false) {
+     void find_glob_min_fixed_index(std::vector<double>& x, int index) {
         if (index >= dim) return;
         vector<TrialD> vec;
         auto lb = x;
@@ -67,11 +66,9 @@ public:
         size_t k = 2;
         size_t t = 0;
         M = abs((vec[1].z - vec[0].z) / (vec[1].x[index] - vec[0].x[index]));
-        for (; ((stop_crit && abs(vec[t + 1].x[index] - IOPPtr->GetOptimumPoint()[index]) > eps)
-            || (!stop_crit && (vec[t + 1].x[index] - vec[t].x[index] >= eps)))
-            && count<NMax; ++k) {
+        for (; ((vec[t + 1].x[index] - vec[t].x[index]) >= eps) && count < NMax; ++k) {
 
-            find_glob_min_fixed_index(x, index + 1, stop_crit);
+            find_glob_min_fixed_index(x, index + 1);
             for (size_t i = 0; i < (k - 1u); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[index] - vec[i].x[index]));
                 if (M_tmp > M) M = M_tmp;
@@ -108,21 +105,18 @@ public:
         sol = min;
     }
 
-    TrialD find_glob_min(bool stop_crit = false) {
+    TrialD find_glob_min() {
         vector<TrialD> vec;
         vec.push_back(TrialD(a, IOPPtr->ComputeFunction( a )));
         vec.push_back(TrialD(b, IOPPtr->ComputeFunction( b )));
         count = 2;
         double M = 0;
-        size_t k = 2;
-        size_t t = 0;
+        int k = 2;
+        int t = 0;
         vector<double> x = a;
-        M = abs((vec[1].z - vec[0].z) / (vec[1].x[0] - vec[0].x[0]));
-        for (; ((stop_crit && abs(vec[t + 1].x[0] - IOPPtr->GetOptimumPoint()[0]) > eps)
-            || (!stop_crit && (vec[t + 1].x[0] - vec[t].x[0] >= eps)))
-            && count < NMax; ++k) {
-            find_glob_min_fixed_index(x, 1, stop_crit);
-            for (size_t i = 0; i < (k - 1u); ++i) {
+        for (; (vec[t + 1].x[0] - vec[t].x[0]) >= eps && count < NMax; ++k) {
+            find_glob_min_fixed_index(x, 1);
+            for (int i = 0; i < (k - 1); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[0] - vec[i].x[0]));
                 if (M_tmp > M) M = M_tmp;
             }
@@ -131,7 +125,7 @@ public:
             if (M != 0) m = r * M;
             t = 0;
             double R = m * (vec[1].x[0] - vec[0].x[0]) + (pow((vec[1].z - vec[0].z), 2) / (m * (vec[1].x[0] - vec[0].x[0]))) - 2 * (vec[1].z + vec[0].z);
-            for (size_t i = 1; i < (k - 1u); ++i) {
+            for (int i = 1; i < (k - 1); ++i) {
                 double R_tmp = m * (vec[i + 1].x[0] - vec[i].x[0]) +
                     (pow((vec[i + 1].z - vec[i].z), 2) / (m * (vec[i + 1].x[0] - vec[i].x[0]))) - 2 * (vec[i + 1].z + vec[i].z);
                 if (R_tmp > R) { t = i; R = R_tmp; }

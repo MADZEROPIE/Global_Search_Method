@@ -1,8 +1,10 @@
 #pragma once
-#include "../sample_src/Shekel/ShekelProblem.hpp"
-#include "../sample_src/Hill/HillProblem.hpp"
+
 #include <functional>
 #include <random>
+
+#include "../sample_src/Shekel/ShekelProblem.hpp"
+#include "../sample_src/Hill/HillProblem.hpp"
 
 extern double kShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
 extern double aShekel[NUM_SHEKEL_PROBLEMS][NUM_SHEKEL_COEFF];
@@ -32,6 +34,7 @@ class MyOptFunction {
 public:
     virtual double operator() (double x) = 0;
     virtual double Compute(double x) = 0;
+    //friend class MyConstrainedProblemGenerator;
 };
 
 class MyConstrainedProblem {
@@ -88,6 +91,7 @@ public:
         return res - delta;
     }
     double Compute(double x) { return this->operator()(x); }
+    friend class MyConstrainedProblemGenerator;
 };
 
 class MyHillFunction : public MyOptFunction {
@@ -109,9 +113,12 @@ public:
         return res - delta;
     }
     double Compute(double x) { return this->operator()(x); }
+    friend class MyConstrainedProblemGenerator;
 };
 
 class MyConstrainedProblemGenerator {
+private:
+    double findMinMax(const vector<MyOptFunction*>& g_vec, double LoBound, double UpBound, uint64_t steps = 100000);
 public:
     MyConstrainedProblem* Generate(MyConstrPrType type, uint m, double delta = 0.1, uint seed = 0);
     vector<MyConstrainedProblem*> GenerateNProblems(uint n, MyConstrPrType type, uint m, double delta = 0.01, uint seed = 0);

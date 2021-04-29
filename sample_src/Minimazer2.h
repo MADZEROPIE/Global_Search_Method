@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 1;
+    double q = 0;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -174,7 +174,7 @@ public:
         }
         for (; x <= b; x += h) {
             auto tr = make_trial(x);
-            if (tr.index == m && tr.z < sol.z) {
+            if (tr.index == m && tr.z[m] < sol.z[m]) {
                 sol = tr; 
             }
         }
@@ -183,11 +183,12 @@ public:
     }
 
     void Show_info() {
-        //if (!solved) this->find_glob_min();
-        std::cout << "Минимум функции = " << sol.z[m] << " в точке x = " << sol.x << std::endl;
-        std::cout << "Точность вычислений eps = " << eps << std::endl;
-        /*std::cout << "Параметр метода r = " << r << std::endl;*/
-        std::cout << "Функция была посчитана " << count << " раз(а)" << std::endl;
+        if (solved) {
+            std::cout << "Минимум функции = " << sol.z[m] << " в точке x = " << sol.x << std::endl;
+            std::cout << "Точность вычислений eps = " << eps << std::endl;
+            /*std::cout << "Параметр метода r = " << r << std::endl;*/
+            std::cout << "Функция была посчитана " << count << " раз(а)" << std::endl;
+        }
     }
     void Show_info_in_file(std::ofstream& fout) {
         //if (!solved) this->find_glob_min();
@@ -199,7 +200,7 @@ public:
         }
     }
     ConsTrial GetMin() {
-        if (!solved) this->find_glob_min();
+        //if (!solved) this->find_glob_min();
         return sol;
     }
     unsigned long long GetCount() { return count; }

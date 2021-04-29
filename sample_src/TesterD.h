@@ -21,13 +21,12 @@ public:
             std::cout << IOPPtr->GetOptimumValue() << " " << IOPPtr->ComputeFunction(exp_tmp) << std::endl;
             std::cout << "INCORRECT OPTIMUM VALUE OR POINT" << std::endl;
         }*/
-        //expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
         expected = TrialD(exp_tmp, IOPPtr->ComputeFunction(exp_tmp));
         dim = IOPPtr->GetDimension();
     }
 
-    bool Test(bool stop_crit) {
-        TrialD res = Min.find_glob_min(stop_crit);
+    bool Test() {
+        TrialD res = Min.find_glob_min();
 
         double dev = abs(res.x[0] - expected.x[0]);
         for (int i = 1; i < dim; ++i) {
@@ -74,18 +73,18 @@ public:
 
 //------------------------------------------------------------------------------------------\\
 
-void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit) {
+void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double eps, uint64_t NMax, const std::string& family_name) {
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
-    vector<int> CountVec1(10000000);//NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
+    //vector<int> CountVec1(10000000);//NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
     /*for (int i = 0; i <= NMax; ++i) {
         CountVec1[i] = 0;
     }*/
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
-        bool tmp = Tes.Test(stop_crit);
+        bool tmp = Tes.Test();
         std::cout << i << " ";
         if (tmp) {
             ++CorrectCount;
@@ -94,7 +93,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
             //++CountVec1[Tes.GetCount()];
         }
         else {
-            std::cout << i << " NOPE\n";
+            std::cout << "NOPE\n";
             //Tes.Show_info();
         }
         Tes.Show_info();
