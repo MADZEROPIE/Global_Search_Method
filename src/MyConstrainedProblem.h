@@ -18,9 +18,10 @@ extern double maxHill[NUM_HILL_PROBLEMS][2];
 extern double lConstantHill[NUM_HILL_PROBLEMS];
 
 struct ConsTrial {
-    double x, z;
+    double x;
+    std::vector<double> z;
     int index;
-    ConsTrial(double _x = 0, double _z = 0, int _index = 1) {
+    ConsTrial(double _x = 0, const std::vector<double>& _z = {}, int _index = 1) {
         x = _x;
         z = _z;
         index = _index;

@@ -8,27 +8,30 @@
 class MyTester {
 private:
     MyMinimazer Min;
-    ConsTrial expected;
+    double exp_x, exp_z;
     ConsTrial deviation;
     double eps;
+    int m;
 
 public:
     MyTester(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) : Min(MCPtr, _r, _eps, _NMax) {
         eps = _eps;
         auto exp_tmp = MCPtr->GetOptimumPoint();
+        m = MCPtr->GetNumberofConstr();
         if (abs(MCPtr->GetOptimumValue() - MCPtr->ComputeFunction(exp_tmp)) > 0.0001) {
             std::cout.precision(10);
             std::cout << MCPtr->GetOptimumValue() << " " << MCPtr->ComputeFunction(exp_tmp) << std::endl;
             std::cout << "INCORRECT OPTIMUM VALUE OR POINT" << std::endl;
         }
         //expected = std::make_pair(exp_tmp[0], IOPPtr->GetOptimumValue());
-        expected = ConsTrial(exp_tmp, MCPtr->ComputeFunction(exp_tmp));
+        exp_x = exp_tmp;
+        exp_z = MCPtr->ComputeFunction(exp_tmp);
     }
 
     bool Test(bool stop_crit) {
         ConsTrial res = Min.find_glob_min(stop_crit);
 
-        double dev = abs(res.x - expected.x);
+        double dev = abs(res.x - exp_x);
         bool r1 = (abs(dev) < eps);
         std::cout<<((r1)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
         return r1; // || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
@@ -37,7 +40,7 @@ public:
     bool Test_BF(uint64_t steps = 1000000) {
         ConsTrial res = Min.find_glob_min_BF(steps);
 
-        double dev = abs(res.x - expected.x);
+        double dev = abs(res.x - exp_x);
         bool r1 = (abs(dev) < eps);
         std::cout << ((r1) ? "YEEEEEEEEEEEEEEEEEES" : "NOOOOOOOOOOOOOOOOOOO") << std::endl;
         return r1; // || abs(res.z - expected.z) < eps); // Is this LEGAL? Well, no, but...
@@ -48,9 +51,9 @@ public:
         //if (!Min.IsSolved()) Test();
         Min.Show_info();
         auto res = Min.GetMin();
-        std::cout << "Ожидаемый результат: y = " << expected.z << " в точке x = " << expected.x << std::endl;
-        std::cout << "Отклонение по x = " << res.x - expected.x << std::endl;
-        std::cout << "Отклонение по y = " << res.z - expected.z << std::endl;
+        std::cout << "Ожидаемый результат: y = " << exp_z << " в точке x = " << exp_x << std::endl;
+        std::cout << "Отклонение по x = " << res.x - exp_x << std::endl;
+        std::cout << "Отклонение по y = " << res.z[m] - exp_z << std::endl;
         std::cout << std::endl;
     }
 
@@ -59,9 +62,9 @@ public:
         if (fout.is_open()) {
             Min.Show_info_in_file(fout);
             auto res = Min.GetMin();
-            fout << "Ожидаемый результат: y = " << expected.z << " в точке x = " << expected.x << std::endl;
-            fout << "Отклонение по x = " << res.x - expected.x << std::endl;
-            fout << "Отклонение по y = " << res.z - expected.z << std::endl;
+            fout << "Ожидаемый результат: y = " << exp_z << " в точке x = " << exp_x << std::endl;
+            fout << "Отклонение по x = " << res.x - exp_x << std::endl;
+            fout << "Отклонение по y = " << res.z[m] - exp_z << std::endl;
             fout << std::endl;
         }
     }

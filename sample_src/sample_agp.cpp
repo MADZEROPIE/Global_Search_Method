@@ -61,10 +61,10 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    int n = 10;
-    int m = 5;
+    int n = 200;
+    int m = 6;
     std::cout << "Генерируется семейство функций...\n";
-    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, -0.5, 1);
+    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, -0.5, 11);
     std::cout << "Генерация завершена...\n";
     vector<double> cr(m + 1);
     for (auto& r1 : cr) {
