@@ -84,8 +84,12 @@ void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vect
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         MyTester Tes(IOPFPtr->operator[](i), r, eps, NMax);
+        if (i == 28) {
+            int a; std::cin >> a;
+        }
         bool tmp = Tes.Test(stop_crit);
         //bool tmp = Tes.Test_BF();
+
         if (tmp) {
             ++CorrectCount;
             std::cout << i << " YEP\n";

@@ -28,9 +28,9 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 4.5;
+    double r = 7.5;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.0001;
+    double eps = 0.001;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -42,7 +42,7 @@ int main(int argc,char* argv[]) {
     ////file.precision(6);
 
     //TODO: CREATE AND USE ADDITIONAL CLASS OR FUNCTION  || CHANGE TESTER
-    uint64_t NMax = 500;
+    uint64_t NMax = 5000;
     //THansenProblemFamily HFam;
     //THillProblemFamily HillFam;
     //TShekelProblemFamily ShekFam;
@@ -60,14 +60,14 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    int n = 5;
-    int m = 4;
+    int n = 50;
+    int m = 2;
     std::cout << "Генерируется семейство функций...\n";
-    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 5.5, 11);
+    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 4.5, 11);
     std::cout << "Генерация завершена...\n";
     vector<double> cr(m + 1);
-    for (auto& r1 : cr) {
-        r1 = r;
+    for (int i = 0; i <= m;++i) {
+        cr[i] = r;
     }
     auto t1 = omp_get_wtime();
     Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);

@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 0;
+    double q = 100;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -40,7 +40,7 @@ protected:
                 return tr;
             }
         }
-        tr.z[m] = (MCPtr->ComputeGjConstr(m, x));
+        tr.z[m] = (MCPtr->ComputeFunction(x));
         tr.index = m;
         return tr;
     }
@@ -65,7 +65,7 @@ public:
         vec.push_back(this->make_trial(b));
         count = 2;
         for (int i = 1; i <= m; ++i) {
-            if(vec[0].index>=i)
+            if(vec[0].index >= i)
                 Vvec[i].push_back(vec[0]);
             if (vec[1].index >= i)
                 Vvec[i].push_back(vec[1]);
@@ -90,16 +90,17 @@ public:
 
             for (int i = 0; i <= m; ++i) {  // Could be done in parallel
                 if (Vvec[i].size() != 0) {
+                    zv[i] = INFINITY;
                     double z_tmp = Vvec[i][0].z[i];
                     int s = Vvec[i].size();
                     for (int j = 1; j < s; ++j)
                         if (Vvec[i][j].z[i] < z_tmp)
                             z_tmp = Vvec[i][j].z[i];
 
-                    if (z_tmp <= 0)
-                        zv[i] = -ev[i];
-                    else
+                    if (z_tmp > 0)
                         zv[i] = z_tmp;
+                    else
+                        zv[i] = -ev[i];
                 }
             }
 
@@ -132,7 +133,7 @@ public:
                 x_new = (vec[t].x + vec[t + 1].x) / 2;
             }
             else {
-                x_new = (vec[t].x + vec[t + 1].x) / 2 - (vec[t + 1].z[vec[t].index] + vec[t].z[vec[t].index]) / (2 * r[vec[t].index] * mv[vec[t].index]);
+                x_new = (vec[t].x + vec[t + 1].x) / 2 - (vec[t + 1].z[vec[t].index] - vec[t].z[vec[t].index]) / (2 * r[vec[t].index] * mv[vec[t].index]);
             }
 
             auto tr = make_trial(x_new);
