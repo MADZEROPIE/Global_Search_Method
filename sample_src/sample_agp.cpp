@@ -28,9 +28,9 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 7.5;
+    double r = 6.5;
     if (argc > 2) r = std::stod(argv[2]);
-    double eps = 0.001;
+    double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
     bool stop_crit = false;
     if (argc > 4) {
@@ -60,22 +60,24 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    int n = 50;
-    int m = 2;
-    std::cout << "Генерируется семейство функций...\n";
-    MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 4.5, 11);
-    std::cout << "Генерация завершена...\n";
-    vector<double> cr(m + 1);
-    for (int i = 0; i <= m;++i) {
-        cr[i] = r;
-    }
-    auto t1 = omp_get_wtime();
-    Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
-    auto t2 = omp_get_wtime();
-    std::cout << "Time: " << t2 - t1 << std::endl;
+    //int n = 50;
+    //int m = 3;
+    //r = 7.5;
+    //eps = 0.001;
+    //std::cout << "Генерируется семейство функций...\n";
+    //MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 3.5, 11);
+    //std::cout << "Генерация завершена...\n";
+    //vector<double> cr(m + 1);
+    //for (int i = 0; i <= m;++i) {
+    //    cr[i] = r;
+    //}
+    //auto t1 = omp_get_wtime();
+    //Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
+    //auto t2 = omp_get_wtime();
+    //std::cout << "Time: " << t2 - t1 << std::endl;
 
-    //TGrishaginProblemFamily fam;
-    //func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin");
+    TGrishaginProblemFamily fam;
+    func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin");
 
     //int a;
     //std::cin >> a;

@@ -60,6 +60,8 @@ public:
         auto rb = x;
         lb[index] = a[index];
         rb[index] = b[index];
+        find_glob_min_fixed_index(lb, index + 1);
+        find_glob_min_fixed_index(rb, index + 1);
         vec.push_back(TrialD(lb, IOPPtr->ComputeFunction( lb )));
         vec.push_back(TrialD(rb, IOPPtr->ComputeFunction( rb )));
         double M = 0;
@@ -67,8 +69,6 @@ public:
         size_t t = 0;
         M = abs((vec[1].z - vec[0].z) / (vec[1].x[index] - vec[0].x[index]));
         for (; ((vec[t + 1].x[index] - vec[t].x[index]) >= eps) && count < NMax; ++k) {
-
-            find_glob_min_fixed_index(x, index + 1);
             for (size_t i = 0; i < (k - 1u); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[index] - vec[i].x[index]));
                 if (M_tmp > M) M = M_tmp;
@@ -85,6 +85,7 @@ public:
             }
 
             x[index] = (vec[t].x[index] + vec[t + 1].x[index]) / 2 - (vec[t + 1].z - vec[t].z) / (2 * m);
+            find_glob_min_fixed_index(x, index + 1);
             TrialD t1_pair(x, IOPPtr->ComputeFunction( x ));
             ++count;
             //vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const Trial& a, const Trial& b) {return a.x <= b.x; }), t1_pair); //No need for sorting, only to insert
@@ -107,20 +108,22 @@ public:
 
     TrialD find_glob_min() {
         vector<TrialD> vec;
-        vec.push_back(TrialD(a, IOPPtr->ComputeFunction( a )));
-        vec.push_back(TrialD(b, IOPPtr->ComputeFunction( b )));
+        auto lb = a, rb = b;
+        find_glob_min_fixed_index(lb, 1);
+        find_glob_min_fixed_index(rb, 1);
+        vec.push_back(TrialD(lb, IOPPtr->ComputeFunction( lb )));
+        vec.push_back(TrialD(rb, IOPPtr->ComputeFunction( rb )));
         count = 2;
         double M = 0;
         int k = 2;
         int t = 0;
         vector<double> x = a;
         for (; (vec[t + 1].x[0] - vec[t].x[0]) >= eps && count < NMax; ++k) {
-            find_glob_min_fixed_index(x, 1);
+            
             for (int i = 0; i < (k - 1); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[0] - vec[i].x[0]));
                 if (M_tmp > M) M = M_tmp;
             }
-
             double m = 1;
             if (M != 0) m = r * M;
             t = 0;
@@ -132,6 +135,7 @@ public:
             }
 
             x[0] = (vec[t].x[0] + vec[t + 1].x[0]) / 2 - (vec[t + 1].z - vec[t].z) / (2 * m);
+            find_glob_min_fixed_index(x, 1);
             TrialD t1_pair(x, IOPPtr->ComputeFunction(x));
             ++count;
             //vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const Trial& a, const Trial& b) {return a.x <= b.x; }), t1_pair); //No need for sorting, only to insert
