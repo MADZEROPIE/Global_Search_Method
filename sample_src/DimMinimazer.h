@@ -2,8 +2,8 @@
 #include "IOptProblem.hpp"
 
 #include <iostream>
-#include <functional> //for std::function
-#include <cmath>  //for math functions e.g. sin() or cos()
+#include <functional>  //for std::function
+#include <cmath>   //for math functions e.g. sin() or cos()
 #include <vector> 
 #include <algorithm>
 #include <fstream>
@@ -20,7 +20,7 @@ using std::pair;
 struct TrialD {
     vector<double> x;
     double z;
-    TrialD(const vector<double>& _x = { 0.0 }, double _z = 0.0) {
+    TrialD(const vector<double>& _x = {}, double _z = 0.0) {
         x = _x;
         z = _z;
     }
@@ -42,6 +42,7 @@ protected:
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
     int dim;
+    vector<TrialD> all_trials;
 
 public:
     MinimazerD(IOptProblem* _IOPPtr, double _eps = 0.01, double _r = 2.0, uint64_t _NMax = 500) {
@@ -53,15 +54,15 @@ public:
         dim = IOPPtr->GetDimension();
     }
 
-     void find_glob_min_fixed_index(std::vector<double>& x, int index) {
+     void find_glob_min_fixed_index(std::vector<double>& x, int index, bool save_trials = false) {
         if (index >= dim) return;
         vector<TrialD> vec;
         auto lb = x;
         auto rb = x;
         lb[index] = a[index];
         rb[index] = b[index];
-        find_glob_min_fixed_index(lb, index + 1);
-        find_glob_min_fixed_index(rb, index + 1);
+        find_glob_min_fixed_index(lb, index + 1, save_trials);
+        find_glob_min_fixed_index(rb, index + 1, save_trials);
         vec.push_back(TrialD(lb, IOPPtr->ComputeFunction( lb )));
         vec.push_back(TrialD(rb, IOPPtr->ComputeFunction( rb )));
         double M = 0;
@@ -85,7 +86,7 @@ public:
             }
 
             x[index] = (vec[t].x[index] + vec[t + 1].x[index]) / 2 - (vec[t + 1].z - vec[t].z) / (2 * m);
-            find_glob_min_fixed_index(x, index + 1);
+            find_glob_min_fixed_index(x, index + 1, save_trials);
             TrialD t1_pair(x, IOPPtr->ComputeFunction( x ));
             ++count;
             //vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const Trial& a, const Trial& b) {return a.x <= b.x; }), t1_pair); //No need for sorting, only to insert
@@ -102,15 +103,17 @@ public:
                 min = vec[i];
                 x = vec[i].x;
             }
+            if (save_trials)
+                all_trials.push_back(vec[i]);
         }
         sol = min;
     }
 
-    TrialD find_glob_min() {
+    TrialD find_glob_min(bool save_trials = false) {
         vector<TrialD> vec;
         auto lb = a, rb = b;
-        find_glob_min_fixed_index(lb, 1);
-        find_glob_min_fixed_index(rb, 1);
+        find_glob_min_fixed_index(lb, 1 , save_trials);
+        find_glob_min_fixed_index(rb, 1, save_trials);
         vec.push_back(TrialD(lb, IOPPtr->ComputeFunction( lb )));
         vec.push_back(TrialD(rb, IOPPtr->ComputeFunction( rb )));
         count = 2;
@@ -135,7 +138,7 @@ public:
             }
 
             x[0] = (vec[t].x[0] + vec[t + 1].x[0]) / 2 - (vec[t + 1].z - vec[t].z) / (2 * m);
-            find_glob_min_fixed_index(x, 1);
+            find_glob_min_fixed_index(x, 1, save_trials);
             TrialD t1_pair(x, IOPPtr->ComputeFunction(x));
             ++count;
             //vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const Trial& a, const Trial& b) {return a.x <= b.x; }), t1_pair); //No need for sorting, only to insert
@@ -151,6 +154,8 @@ public:
             if (vec[i].z < min.z) {
                 min = vec[i];
             }
+            if (save_trials)
+                all_trials.push_back(vec[i]);
         }
         sol = min; solved = true;
         return min;
@@ -181,4 +186,20 @@ public:
     unsigned long long GetCount() { return count; }
 
     bool IsSolved() { return solved; }
+    vector<TrialD>& GetTrials() { return all_trials; }
+    void saveTrialsInFile(std::ofstream& fout) {
+        auto num_trials = all_trials.size();
+        for (auto &tr : all_trials) {
+            //auto& tr = all_trials[i];
+            //std::cout << tr.x.size() << " ";
+            for (int k = 0; k < dim - 1; ++k) {
+                fout << tr.x[k] << ',';
+            }
+            fout << tr.x[dim - 1] << std::endl;
+            
+        }
+        int a = 1;
+        ++a;
+    }
+
 };

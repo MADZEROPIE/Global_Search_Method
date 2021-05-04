@@ -28,7 +28,7 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 6.5;
+    double r = 4.5;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
@@ -77,7 +77,7 @@ int main(int argc,char* argv[]) {
     //std::cout << "Time: " << t2 - t1 << std::endl;
 
     TGrishaginProblemFamily fam;
-    func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin");
+    func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin", true);
 
     //int a;
     //std::cin >> a;

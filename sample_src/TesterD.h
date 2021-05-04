@@ -25,8 +25,8 @@ public:
         dim = IOPPtr->GetDimension();
     }
 
-    bool Test() {
-        TrialD res = Min.find_glob_min();
+    bool Test(bool save_trials = false) {
+        TrialD res = Min.find_glob_min(save_trials);
 
         double dev = abs(res.x[0] - expected.x[0]);
         for (int i = 1; i < dim; ++i) {
@@ -66,6 +66,9 @@ public:
     //        fout << std::endl;
     //    }
     //}
+    void saveTrialsInFile(std::ofstream& fout) {
+        return Min.saveTrialsInFile(fout);
+    }
     unsigned long long GetCount() { return Min.GetCount(); }
 
 
@@ -73,7 +76,7 @@ public:
 
 //------------------------------------------------------------------------------------------\\
 
-void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double eps, uint64_t NMax, const std::string& family_name) {
+void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double eps, uint64_t NMax, const std::string& family_name, bool save_trials = false) {
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
@@ -81,10 +84,12 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     /*for (int i = 0; i <= NMax; ++i) {
         CountVec1[i] = 0;
     }*/
-    for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
+    auto fam_size = IOPFPtr->GetFamilySize();
+
+    for (size_t i = 0; i < fam_size; ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
-        bool tmp = Tes.Test();
+        bool tmp = Tes.Test(save_trials);
         std::cout << i << " ";
         if (tmp) {
             ++CorrectCount;
@@ -97,6 +102,13 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
             //Tes.Show_info();
         }
         Tes.Show_info();
+        if (save_trials) {
+            std::ofstream file;
+            std::string filepath2 = family_name+std::to_string(i)+".csv";
+            file.open(filepath2);
+            file << "sep=,\n";
+            Tes.saveTrialsInFile(file);
+        }
     }
     std::cout << "Правильно решено " << CorrectCount << " из " << IOPFPtr->GetFamilySize() << " " << family_name
         << " family." << std::endl << std::endl;
