@@ -28,7 +28,7 @@ int main(int argc,char* argv[]) {
     
     std::string filepath = "results";
     if (argc > 1){ filepath = argv[1];}
-    double r = 4.5;
+    double r = 2.5;
     if (argc > 2) r = std::stod(argv[2]);
     double eps = 0.01;
     if (argc > 3) eps = std::stod(argv[3]);
@@ -60,30 +60,30 @@ int main(int argc,char* argv[]) {
 
     //--TESTS--
 
-    //int n = 50;
-    //int m = 3;
-    //r = 7.5;
-    //eps = 0.001;
-    //std::cout << "Генерируется семейство функций...\n";
-    //MyConstrainedProblemFamily MCPFam1(n, HillOnly, m, 3.5, 11);
-    //std::cout << "Генерация завершена...\n";
-    //vector<double> cr(m + 1);
-    //for (int i = 0; i <= m;++i) {
-    //    cr[i] = r;
-    //}
-    //auto t1 = omp_get_wtime();
-    //Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
-    //auto t2 = omp_get_wtime();
-    //std::cout << "Time: " << t2 - t1 << std::endl;
+    int n = 1;
+    int m = 4;
+    r = 4.5;
+    eps = 0.01;
+    std::cout << "Генерируется семейство функций...\n";
+    MyConstrainedProblemFamily MCPFam1(n, SheckelOnly, m, 0.5, 11);
+    std::cout << "Генерация завершена...\n";
+    vector<double> cr(m + 1);
+    for (int i = 0; i <= m;++i) {
+        cr[i] = r;
+    }
+    auto t1 = omp_get_wtime();
+    Myfunc(&MCPFam1, "HillConstr", cr, eps, NMax, "HillConstr", false);
+    auto t2 = omp_get_wtime();
+    std::cout << "Time: " << t2 - t1 << std::endl;
 
-    TGrishaginProblemFamily fam;
-    func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin", true);
+    /*TGrishaginProblemFamily fam;
+    func2(&fam, "Grishagin.txt", r, eps, 5000000, "Grishagin", true);*/
 
     //int a;
     //std::cin >> a;
 
-    //TGKLSProblemFamily fam2(3);
-    //func2(&fam2, "GKLS.txt", r, eps, 50000000000, "GKLS", false);
+    //TGKLSProblemFamily fam2(2);
+    //func2(&fam2, "GKLS.csv", r, eps, 50000000000, "GKLS", true);
 
     //THansenProblemFamily HFam;
     //THillProblemFamily HillFam;
@@ -99,138 +99,5 @@ int main(int argc,char* argv[]) {
     //auto t2 = omp_get_wtime();
     //std::cout <<"Time: "<< t2 - t1 << std::endl;
 
-
-
-    // ----- OLD THINGS. DELETE BEFORE RELEASE -----
-
-    /*//int maxind = 0;
-    //double maxdiff = 0.0;
-    //for (int i = 0; i < ShekFam.GetFamilySize();++i) {
-    //    auto IOPPtr = ShekFam.operator[](i);
-    //    double a, b;
-    //    vector<double> tmp_lb, tmp_rb;
-    //    IOPPtr->GetBounds(tmp_lb, tmp_rb);
-    //    a = tmp_lb[0]; b = tmp_rb[0];
-    //    double h = (b - a) / 100000;
-    //    double mz = IOPPtr->ComputeFunction({ a }), mx=a;
-    //    for (double x = a + h; x <= b; x += h) {
-    //        double z = IOPPtr->ComputeFunction({ x });
-    //        if (z > mz) {
-    //            mz = z;
-    //            mx = x;  
-    //        }
-    //    }
-    //    if (IOPPtr->ComputeFunction({ b }) > mz) {
-    //        mz = IOPPtr->ComputeFunction({ b });
-    //        mx = b;
-    //    }
-    //    double pmx = IOPPtr->GetMaxPoint()[0];
-    //    double pmz = IOPPtr->GetMaxValue();
-    //    if (abs(pmz - mz) > maxdiff) {
-    //        maxdiff = abs(pmz - mz);
-    //        maxind = i;
-    //    }
-    //}
-    //std::cout << maxdiff << " " << maxind;*/
-
-    //auto pr_vec = gen.GenerateNProblems(1000000, SheckelOnly, 11, 0.35);
-    //std::cout << pr_vec[0]->GetOptimumPoint() <<" "<< pr_vec[0]->GetOptimumValue();
-
-    //std::vector<int> broken = { 133, 452, 800, 603, 688, 398, 875, 569, 304, 990, 843, 557 };
-/*
-    double minmaxSh = maxShekel[broken[0]][0], maxmaxSh = maxShekel[broken[0]][0];
-    uint j = 0;
-    for (uint i = 0; i < 11u; ++i) {
-        if (minmaxSh > maxShekel[broken[i]][0]) {
-            minmaxSh = maxShekel[broken[i]][0];
-            j = i;
-        }
-        if (maxmaxSh < maxShekel[broken[i]][0]) 
-            maxmaxSh = maxShekel[broken[i]][0];
-    }
-    std::cout << j<<" "<<minmaxSh << "\n";
-    //minmaxSh = -0.2464;
-    double delta = 0.2;
-
-    int m = 11;
-    double LoBound = 0.0;
-    double UpBound = 10.0;
-    double h = 1e-5;
-    double x = LoBound;
-    delta += minmaxSh;
-    std::cout << delta << '\n';
-    bool flag = false;
-    double mindiff = 10000000000.0, maxdiff=0.0;
-    uint64_t incl=0, all=0;
-    for (; x <= UpBound; x += h) {
-        double z;
-        int i = 0;
-        for (; i < m; ++i) {
-            double tmp = ShekFam[broken[i]]->ComputeFunction({ x }) - delta;
-            if (tmp > 0.0) { 
-                if (tmp < mindiff) mindiff = tmp;
-                if (tmp > maxdiff) maxdiff = tmp;
-                //std::cout <<i<<" "<<x<<" "<< ShekFam[broken[i]]->ComputeFunction({ x }) - delta <<"\n";
-                break;
-            }
-        }
-        if (i == m) {
-            ++incl;
-            flag = true;
-        }
-        ++all;
-    }
-    std::cout << incl << " " << all << " " << double(incl) / all * 100.0 << "%\n";
-    std::cout << maxdiff << " " << maxmaxSh << " " << maxmaxSh - delta << "\n";
-    std::cout << mindiff << " " << flag;
-
-    std::cout << "\n\n\n\n\n\n";
-    */
-
-    //double minmaxH = maxHill[broken[0]][0], maxmaxH = maxHill[broken[0]][0];
-    //uint j = 0;
-    //for (uint i = 0; i < 11u; ++i) {
-    //    if (minmaxH > maxHill[broken[i]][0]) {
-    //        minmaxH = maxHill[broken[i]][0];
-    //        j = i;
-    //    }
-    //    if (maxmaxH < maxHill[broken[i]][0])
-    //        maxmaxH = maxHill[broken[i]][0];
-    //}
-    //std::cout << j << " " << minmaxH << "\n";
-    ////minmaxSh = -0.2464;
-    //double delta = 0.353;
-
-    //int m = 11;
-    //double LoBound = 0.0;
-    //double UpBound = 1.0;
-    //double h = 1e-5;
-    //double x = LoBound;
-    //delta += minmaxH;
-    //std::cout << delta << '\n';
-    //bool flag = false;
-    //double mindiff = 10000000000.0, maxdiff = 0.0;
-    //uint64_t incl = 0, all = 0;
-    //for (; x <= UpBound; x += h) {
-    //    double z;
-    //    int i = 0;
-    //    for (; i < m; ++i) {
-    //        double tmp = HillFam[broken[i]]->ComputeFunction({ x }) - delta;
-    //        if (tmp > 0.0) {
-    //            if (tmp < mindiff) mindiff = tmp;
-    //            if (tmp > maxdiff) maxdiff = tmp;
-    //            //std::cout <<i<<" "<<x<<" "<< ShekFam[broken[i]]->ComputeFunction({ x }) - delta <<"\n";
-    //            break;
-    //        }
-    //    }
-    //    if (i == m) {
-    //        ++incl;
-    //        flag = true;
-    //    }
-    //    ++all;
-    //}
-    //std::cout << incl << " " << all << " " << double(incl) / all * 100.0 << "%\n";
-    //std::cout << maxdiff << " " << maxmaxH << " " << maxmaxH - delta << "\n";
-    //std::cout << mindiff << " " << flag;
     return 0;
 }

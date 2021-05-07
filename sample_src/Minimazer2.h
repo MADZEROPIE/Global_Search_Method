@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 100;
+    double q = 10;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -60,12 +60,10 @@ public:
         vector<ConsTrial>& vec = Vvec[0];
         vector<double> mv(m + 1), zv(m + 1), ev(m + 1);
         vec.push_back(this->make_trial(a));
-
-
         vec.push_back(this->make_trial(b));
         count = 2;
         for (int i = 1; i <= m; ++i) {
-            if(vec[0].index >= i)
+            if (vec[0].index >= i)
                 Vvec[i].push_back(vec[0]);
             if (vec[1].index >= i)
                 Vvec[i].push_back(vec[1]);
@@ -81,9 +79,8 @@ public:
                     double M_tmp = abs(Vvec[i][j + 1].z[i] - Vvec[i][j].z[i]) / (Vvec[i][j + 1].x - Vvec[i][j].x);
                     if (M_tmp > mv[i])
                         mv[i] = M_tmp;
-
                 }
-                if (mv[i] == 0) mv[i] = 1; //???
+                if (mv[i] == 0) mv[i] = 1;
                 //else mv[i] = r[i] * mv[i];
                 ev[i] = mv[i] * q * eps;
             }
@@ -93,14 +90,18 @@ public:
                     zv[i] = INFINITY;
                     double z_tmp = Vvec[i][0].z[i];
                     int s = Vvec[i].size();
-                    for (int j = 1; j < s; ++j)
+                    for (int j = 1; j < s; ++j) {
                         if (Vvec[i][j].z[i] < z_tmp)
                             z_tmp = Vvec[i][j].z[i];
+                    }
 
-                    if (z_tmp > 0)
+                    if (z_tmp > 0 || i == m) {
                         zv[i] = z_tmp;
-                    else
+                    }
+                    else {
+                        std::cout << i << " ";
                         zv[i] = -ev[i];
+                    }
                 }
             }
 
@@ -110,18 +111,22 @@ public:
 
             for (int i = 0; i < s - 1; ++i) {
                 double R_tmp;
+                double del = vec[i + 1].x - vec[i].x;
                 if (vec[i].index == vec[i + 1].index) {
                     auto v = vec[i].index;
-                    R_tmp = vec[i + 1].x - vec[i].x + (vec[i + 1].z[v] - vec[i].z[v]) * (vec[i + 1].z[v] - vec[i].z[v]) /  // I know, I know...
-                        (r[v] * r[v] * mv[v] * mv[v] * (vec[i + 1].x - vec[i].x)) - 2 * (vec[i + 1].z[v] + vec[i].z[v] - 2 * zv[v]) / (r[v] * mv[v]);
+                    std::cout << v << " " << zv[v] << std::endl;
+                    R_tmp = del + (vec[i + 1].z[v] - vec[i].z[v]) * (vec[i + 1].z[v] - vec[i].z[v]) /
+                        (r[v] * r[v] * mv[v] * mv[v] * del) - 2 * (vec[i + 1].z[v] + vec[i].z[v] - 2 * zv[v]) / (r[v] * mv[v]);
                 }
                 else if (vec[i].index < vec[i + 1].index) {
                     auto v = vec[i + 1].index;
-                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i + 1].z[v] - zv[v]) / (r[v] * mv[v]); // (vec[i + 1].z[v]
+                    std::cout << v << " " << zv[v] << std::endl;
+                    R_tmp = 2 * del - 4 * (vec[i + 1].z[v] - zv[v]) / (r[v] * mv[v]); // (vec[i + 1].z[v]
                 }
                 else {
                     auto v = vec[i].index;
-                    R_tmp = 2 * (vec[i + 1].x - vec[i].x) - 4 * (vec[i].z[v] - zv[v]) / (r[v] * mv[v]);
+                    std::cout << v << " " << zv[v] << std::endl;
+                    R_tmp = 2 * del - 4 * (vec[i].z[v] - zv[v]) / (r[v] * mv[v]);
                 }
                 if (R_tmp > R) {
                     t = i;
@@ -133,7 +138,8 @@ public:
                 x_new = (vec[t].x + vec[t + 1].x) / 2;
             }
             else {
-                x_new = (vec[t].x + vec[t + 1].x) / 2 - (vec[t + 1].z[vec[t].index] - vec[t].z[vec[t].index]) / (2 * r[vec[t].index] * mv[vec[t].index]);
+                int v = vec[t].index;
+                x_new = (vec[t].x + vec[t + 1].x) / 2 - (vec[t + 1].z[v] - vec[t].z[v]) / (2 * r[v] * mv[v]);
             }
 
             auto tr = make_trial(x_new);
@@ -144,6 +150,7 @@ public:
                     Vvec[i].push_back(tr);  // TODO: INSERT WITH BINARY SEARCH
                     std::sort(Vvec[i].begin(), Vvec[i].end(), [](const ConsTrial& a, const ConsTrial& b) { return a.x < b.x; });
                 }
+                else break;
             }
             ++count;
             //std::cout << tr.x << " " << tr.z << '\n';

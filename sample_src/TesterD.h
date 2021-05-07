@@ -80,12 +80,9 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
-    //vector<int> CountVec1(10000000);//NMax * (IOPFPtr->operator[](0)->GetDimension()+1));
-    /*for (int i = 0; i <= NMax; ++i) {
-        CountVec1[i] = 0;
-    }*/
     auto fam_size = IOPFPtr->GetFamilySize();
-
+    vector<int> CountVec1;
+    CountVec1.reserve(fam_size+1);
     for (size_t i = 0; i < fam_size; ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
@@ -94,8 +91,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         if (tmp) {
             ++CorrectCount;
             std::cout << "YEP\n";
-
-            //++CountVec1[Tes.GetCount()];
+            CountVec1.push_back(Tes.GetCount());  
         }
         else {
             std::cout << "NOPE\n";
@@ -104,7 +100,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         Tes.Show_info();
         if (save_trials) {
             std::ofstream file;
-            std::string filepath2 = family_name+std::to_string(i)+".csv";
+            std::string filepath2 = family_name+std::to_string(i) + ".csv";
             file.open(filepath2);
             file << "sep=,\n";
             Tes.saveTrialsInFile(file);
@@ -114,17 +110,16 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         << " family." << std::endl << std::endl;
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
-    //file << "sep=,\n";
+    file << "sep=,\n";
     //file << "0,0\n";
     double tmp;
     int i;
-    /*for (i = 1; i < CountVec1.size(); ++i) {
-        CountVec1[i] += CountVec1[i - 1];
-    }
+    std::sort(CountVec1.begin(), CountVec1.end());
     for (i = 0; i < CountVec1.size(); ++i) {
-        tmp = double(CountVec1[i]) / double(IOPFPtr->GetFamilySize());
-        file << i << ',' << tmp << "\n";
-        for (; (i + 1) < CountVec1.size() && CountVec1[i + 1] == CountVec1[i]; ++i);
+        for (int j = i; (j + 1) < CountVec1.size() && CountVec1[j + 1] == CountVec1[j]; ++j) {
+            i = j;
+        }
+        file << CountVec1[i] << ',' << double(i + 1.0) / fam_size << "\n";
     }
-    file << '\n';*/
+    file << '\n';
 }

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.9)
 
 set(PROJECT_NAME_STR builder_sample)
 set(CMAKE_CXX_STANDARD 11)
 
-project (${PROJECT_NAME_STR})
+project (${PROJECT_NAME_STR} LANGUAGES CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
@@ -20,4 +20,6 @@ file(GLOB SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/sample_src/*.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
 
+find_package(OpenMP REQUIRED)
 add_executable(${PROJECT_NAME_STR} ${SRC_FILES})
+target_link_libraries(${PROJECT_NAME_STR} PRIVATE OpenMP::OpenMP_CXX)
