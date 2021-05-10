@@ -27,7 +27,7 @@ protected:
     bool solved = false;
     unsigned long long count = 0; // How many times func was executed
     unsigned long long NMax; // Magic Number
-    double q = 10;
+    double q = 1;
 
     ConsTrial make_trial(double x) {
         ConsTrial tr;
@@ -46,13 +46,14 @@ protected:
     }
 
 public:
-    MyMinimazer(MyConstrainedProblem* _MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) {
+    MyMinimazer(MyConstrainedProblem* _MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500, double _q=1) {
         MCPtr = _MCPtr;
         m = MCPtr->GetNumberofConstr();
         MCPtr->GetBounds(a, b);
         r = _r;
         eps = _eps;
         NMax = _NMax;
+        q = _q;
     }
 
     ConsTrial find_glob_min(bool stop_crit = false) {
@@ -99,7 +100,6 @@ public:
                         zv[i] = z_tmp;
                     }
                     else {
-                        std::cout << i << " ";
                         zv[i] = -ev[i];
                     }
                 }
@@ -114,18 +114,15 @@ public:
                 double del = vec[i + 1].x - vec[i].x;
                 if (vec[i].index == vec[i + 1].index) {
                     auto v = vec[i].index;
-                    std::cout << v << " " << zv[v] << std::endl;
                     R_tmp = del + (vec[i + 1].z[v] - vec[i].z[v]) * (vec[i + 1].z[v] - vec[i].z[v]) /
                         (r[v] * r[v] * mv[v] * mv[v] * del) - 2 * (vec[i + 1].z[v] + vec[i].z[v] - 2 * zv[v]) / (r[v] * mv[v]);
                 }
                 else if (vec[i].index < vec[i + 1].index) {
                     auto v = vec[i + 1].index;
-                    std::cout << v << " " << zv[v] << std::endl;
                     R_tmp = 2 * del - 4 * (vec[i + 1].z[v] - zv[v]) / (r[v] * mv[v]); // (vec[i + 1].z[v]
                 }
                 else {
                     auto v = vec[i].index;
-                    std::cout << v << " " << zv[v] << std::endl;
                     R_tmp = 2 * del - 4 * (vec[i].z[v] - zv[v]) / (r[v] * mv[v]);
                 }
                 if (R_tmp > R) {

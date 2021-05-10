@@ -81,9 +81,9 @@ void func(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double eps
     for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         Tester Tes(IOPFPtr->operator[](i), eps, r, NMax);
-        bool tmp = Tes.Test_par();
+        //bool tmp = Tes.Test_par();
         //Tes.Show_info();
-        //bool tmp = Tes.Test(stop_crit);
+        bool tmp = Tes.Test(stop_crit);
         if (tmp) {
             ++CorrectCount;
             //std::cout << "YEP\n";

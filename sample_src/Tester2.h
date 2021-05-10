@@ -14,7 +14,7 @@ private:
     int m;
 
 public:
-    MyTester(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500) : Min(MCPtr, _r, _eps, _NMax) {
+    MyTester(MyConstrainedProblem* MCPtr, std::vector<double> _r, double _eps = 0.01, uint64_t _NMax = 500, double q=1) : Min(MCPtr, _r, _eps, _NMax,q) {
         eps = _eps;
         auto exp_tmp = MCPtr->GetOptimumPoint();
         m = MCPtr->GetNumberofConstr();
@@ -73,25 +73,24 @@ public:
 
 };
 
-void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vector<double> r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit) {
+void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vector<double> r, double eps, uint64_t NMax, const std::string& family_name, bool stop_crit, double q) {
     std::ofstream file;
     file.open(filepath);
     uint64_t CorrectCount = 0;
-    //vector<int> CountVec1(NMax + 1);
-    /*for (int i = 0; i <= NMax; ++i) {
-        CountVec1[i] = 0;
-    }*/
-    for (size_t i = 0; i < IOPFPtr->GetFamilySize(); ++i) {
+    auto fam_size = IOPFPtr->GetFamilySize();
+    vector<int> CountVec1;
+    CountVec1.reserve(fam_size + 1);
+    for (size_t i = 0; i < fam_size; ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
-        MyTester Tes(IOPFPtr->operator[](i), r, eps, NMax);
+        MyTester Tes(IOPFPtr->operator[](i), r, eps, NMax,q);
         bool tmp = Tes.Test(stop_crit);
         //bool tmp = Tes.Test_BF();
 
         if (tmp) {
             ++CorrectCount;
             std::cout << i << " YEP\n";
-            Tes.Show_info();
-            //++CountVec1[Tes.GetCount()];
+            //Tes.Show_info();
+            CountVec1.push_back(Tes.GetCount());
         }
         else {
             std::cout << i << " NOPE\n";
@@ -102,17 +101,16 @@ void Myfunc(MyConstrainedProblemFamily* IOPFPtr, std::string filepath, std::vect
         << " family." << std::endl << std::endl;
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
-    //file << "sep=,\n";
-    //file << "0,0\n";
+    file << "sep=,\n";
+    file << "0,0\n";
     double tmp;
     int i;
-    /*for (i = 1; i < CountVec1.size(); ++i) {
-        CountVec1[i] += CountVec1[i - 1];
+    std::sort(CountVec1.begin(), CountVec1.end());
+    for (i = 0; i < CorrectCount; ++i) {
+        for (int j = i; (j + 1) < CorrectCount && (CountVec1[j + 1] == CountVec1[j]); ++j) {
+            ++i;
+        }
+        file << CountVec1[i] << ',' << double(i + 1.0) / fam_size << "\n";
     }
-    for (i = 0; i < CountVec1.size(); ++i) {
-        tmp = double(CountVec1[i]) / double(IOPFPtr->GetFamilySize());
-        file << i << ',' << tmp << "\n";
-        for (; (i + 1) < CountVec1.size() && CountVec1[i + 1] == CountVec1[i]; ++i);
-    }*/
-    //file << '\n';
+    file << '\n';
 }

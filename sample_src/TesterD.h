@@ -95,9 +95,9 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         }
         else {
             std::cout << "NOPE\n";
-            //Tes.Show_info();
+            Tes.Show_info();
         }
-        Tes.Show_info();
+        //Tes.Show_info();
         if (save_trials) {
             std::ofstream file;
             std::string filepath2 = family_name+std::to_string(i) + ".csv";
@@ -111,7 +111,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     //file << "Правильно решено " << CorrectCount << " из " << HFam.GetFamilySize() << " THansenProblem." << std::endl << std::endl;
 
     file << "sep=,\n";
-    //file << "0,0\n";
+    file << "0,0\n";
     double tmp;
     int i;
     std::sort(CountVec1.begin(), CountVec1.end());

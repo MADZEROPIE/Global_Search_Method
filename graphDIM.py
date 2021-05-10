@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 
 
-data=pd.read_csv("./build/Grishagin0.csv")
+#data=pd.read_csv("./build/Grishagin54.csv")
+data=pd.read_csv("./build/GKLS54.csv")
 data.columns=["x","y"]
-plt.scatter(data["x"], data["y"],sizes=[2.5]*len(data["x"]), marker='ш')# , kind="scatter")
+plt.scatter(data["x"], data["y"],sizes=[2.5]*len(data["x"]), marker='o')# , kind="scatter")
         #plt.step(data["x"],data["y"])
 #plt.ylim(bottom=0,top=1) 
 #plt.xlim(left=0)
