@@ -179,9 +179,8 @@ public:
         return sol;
     }
 
-    TrialD find_glob_min_Peano(bool save_trials = false) {
+    TrialD find_glob_min_Peano(bool save_trials = false) {  // SS
         vector<TrialP> vec;
-
         count = 2;
         double M = 0;
         int k = 2;
@@ -190,7 +189,32 @@ public:
         vector<double> x1(dim);
         double x = 0;
         for (; curr_diff < eps && k < NMax; ++k) {
+            for (int i = 0; i < (k - 1); ++i) {
+                double M_tmp = abs((vec[i + 1].z - vec[i].z) / pow((vec[i + 1].x - vec[i].x), 1.0/dim));
+                if (M_tmp > M) M = M_tmp;
+            }
 
+            double m = 1;
+            if (M != 0) m = r * M;
+            t = 0;
+            double dist = pow(vec[1].x - vec[0].x, 1.0 / dim);
+            double R = m * dist + (pow((vec[1].z - vec[0].z), 2) / (m * dist)) - 2 * (vec[1].z + vec[0].z);
+            for (size_t i = 1; i < (k - 1u); ++i) {
+                double dist = pow(vec[i + 1].x - vec[i].x, 1.0/dim);
+                double R_tmp = m * dist + (pow((vec[i + 1].z - vec[i].z), 2) / (m * dist)) - 2 * (vec[i + 1].z + vec[i].z);
+                if (R_tmp > R) { t = i; R = R_tmp; }
+            }
+
+            double x_t1 = (vec[t].x + vec[t + 1].x) / 2;
+            if((vec[t + 1].z - vec[t].z)<0) x_t1 -= pow((vec[t + 1].z - vec[t].z) /  m, dim) / 2;
+            mapd(x, 10, x1.data(), dim, 1);
+            //
+            for (int i = 0; i < dim; ++i) {
+                x1[i] = (b[i] - a[i]) * x1[i] + (a[i]+b[i]) / 2;  // b[i]+-a[i] are const, so...
+            }
+            ++count;
+            TrialP t1_pair(x_t1, IOPPtr->ComputeFunction({ x1 }));
+            vec.insert(vec.begin() + t + 1, t1_pair);
         }
 
         // Findin' min in vec
