@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <fstream>
 
-
 #include <omp.h>
 
 #define NUMTH 6

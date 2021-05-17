@@ -1,5 +1,6 @@
 #pragma once
 #include "IOptProblem.hpp"
+#include "Map.h"
 
 #include <iostream>
 #include <functional>  //for std::function
@@ -25,6 +26,24 @@ struct TrialD {
         z = _z;
     }
 };
+
+struct TrialP {  // Trial for Peano. Same as Trial, so ...
+    double x;
+    double z;
+    TrialP(double _x = 0, double _z = 0.0) {
+        x = _x;
+        z = _z;
+    }
+    TrialD toTrialD(const vector <double>& lb, const vector <double>& rb, int m=10) {
+        TrialD res;
+        res.x.resize(lb.size());
+        res.z = z;
+        vector<double> xd(lb.size());
+        mapd(x, m, res.x.data(), lb.size(), 1);
+        return res;
+    }
+};
+
 
 class MinimazerD { //Don't ask me why... But only because using a sledge-hammer to crack a nut sounds fun.
 
@@ -121,8 +140,7 @@ public:
         int k = 2;
         int t = 0;
         vector<double> x = a;
-        for (; (vec[t + 1].x[0] - vec[t].x[0]) >= eps && count < NMax; ++k) {
-            
+        for (; (vec[t + 1].x[0] - vec[t].x[0]) >= eps && count < NMax; ++k) {  
             for (int i = 0; i < (k - 1); ++i) {
                 double M_tmp = abs((vec[i + 1].z - vec[i].z) / (vec[i + 1].x[0] - vec[i].x[0]));
                 if (M_tmp > M) M = M_tmp;
@@ -158,7 +176,35 @@ public:
                 all_trials.push_back(vec[i]);
         }
         sol = min; solved = true;
-        return min;
+        return sol;
+    }
+
+    TrialD find_glob_min_Peano(bool save_trials = false) {
+        vector<TrialP> vec;
+
+        count = 2;
+        double M = 0;
+        int k = 2;
+        int t = 0;
+        double curr_diff = 1;
+        vector<double> x1(dim);
+        double x = 0;
+        for (; curr_diff < eps && k < NMax; ++k) {
+
+        }
+
+        // Findin' min in vec
+        auto min = vec[t + 1];
+        for (int i = 0; i < vec.size(); ++i) {
+            if (vec[i].z < min.z) {
+                min = vec[i];
+            }
+            if (save_trials)
+                all_trials.push_back(vec[i].toTrialD(a,b));
+        }
+        count = k;
+        sol = min.toTrialD(a,b); solved = true;
+        return sol;
     }
 
     void Show_info() {
