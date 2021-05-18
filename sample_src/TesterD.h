@@ -27,10 +27,10 @@ public:
 
     bool Test(bool save_trials = false) {
         TrialD res = Min.find_glob_min_Peano(save_trials);
-
+        //TrialD res = Min.find_glob_min(save_trials);
         double dev = abs(res.x[0] - expected.x[0]);
         for (int i = 1; i < dim; ++i) {
-            dev = std::max(dev, res.x[i] - expected.x[i]);
+            dev = std::max(dev, abs(res.x[i] - expected.x[i]));
         }
         //std::cout<<((abs(dev) < eps)? "YEEEEEEEEEEEEEEEEEES": "NOOOOOOOOOOOOOOOOOOO") << std::endl;
         return (abs(dev) < eps || abs(res.z - expected.z) < 7e-5); // Is this LEGAL? Well, no, but...
@@ -83,7 +83,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     auto fam_size = IOPFPtr->GetFamilySize();
     vector<int> CountVec1;
     CountVec1.reserve(fam_size+1);
-    for (size_t i = 0; i < fam_size; ++i) {
+    for (size_t i = 99; i < fam_size; ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
         bool tmp = Tes.Test(save_trials);
@@ -95,9 +95,9 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
         }
         else {
             std::cout << "NOPE\n";
-            Tes.Show_info();
+            //Tes.Show_info();
         }
-        //Tes.Show_info();
+        Tes.Show_info();
         if (save_trials) {
             std::ofstream file;
             std::string filepath2 = family_name+std::to_string(i) + ".csv";

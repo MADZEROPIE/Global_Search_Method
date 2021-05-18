@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     vector<IOptProblemFamily*> vec = { &HFam, &HillFam, &ShekFam };
 
-    vector <int> r_vec = { 2,3,4,5,6 };
+    vector <int> r_vec = {9};//{ 2,3,4,5,6 };
     
     //for(int r=2;r<6;++r)
     //{  // Casual(?)
@@ -86,10 +86,10 @@ int main(int argc, char* argv[]) {
     for (auto r : r_vec)
     { // D
     TGrishaginProblemFamily famGr;
-    func2(&famGr, filepath + "Grishagin" + "_r" + std::to_string(r) +".csv", r+3, eps/10, 50000, "Grishagin", false);
+    //func2(&famGr, filepath + "Grishagin" + "_r" + std::to_string(r) +".csv", r, eps, 5000000, "Grishagin", true);
 
     TGKLSProblemFamily famGKLS(2);
-    func2(&famGKLS, filepath + "GKLS" + "_r" + std::to_string(r) + ".csv", r, eps, 50000000000, "GKLS", true);
+    func2(&famGKLS, filepath + "GKLS" + "_r" + std::to_string(r) + ".csv", r, eps, 5000000, "GKLS", true);
 
     }
     //{  // D = 1

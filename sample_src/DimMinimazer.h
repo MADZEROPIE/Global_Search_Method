@@ -34,12 +34,15 @@ struct TrialP {  // Trial for Peano. Same as Trial, so ...
         x = _x;
         z = _z;
     }
-    TrialD toTrialD(const vector <double>& lb, const vector <double>& rb, int m=10) {
+    TrialD toTrialD(const vector <double>& lb, const vector <double>& rb, int m=12) {
         TrialD res;
         res.x.resize(lb.size());
         res.z = z;
-        vector<double> xd(lb.size());
         mapd(x, m, res.x.data(), lb.size(), 1);
+        for (int i = 0; i < lb.size(); ++i) {
+            res.x[i] = (rb[i] - lb[i]) * res.x[i] + (lb[i] + rb[i]) / 2;  // b[i]+-a[i] are const, so...
+        //    std::cout << x1[i] << " ";
+        }
         return res;
     }
 };
@@ -189,22 +192,22 @@ public:
         vector<double> x1(dim);
         double x = 0;
         
-        mapd(0, 10, x1.data(), dim, 1);
+        mapd(0, 12, x1.data(), dim, 1);
         //
         for (int i = 0; i < dim; ++i) {
             x1[i] = (b[i] - a[i]) * x1[i] + (a[i] + b[i]) / 2;  // b[i]+-a[i] are const, so...
-            std::cout << x1[i] << " ";
+        //    std::cout << x1[i] << " ";
         }
-        std::cout << '\n';
+        //std::cout << '\n';
         vec.push_back(TrialP(0, IOPPtr->ComputeFunction(x1)));
 
-        mapd(1, 10, x1.data(), dim, 1);
+        mapd(1, 12, x1.data(), dim, 1);
         //
         for (int i = 0; i < dim; ++i) {
             x1[i] = (b[i] - a[i]) * x1[i] + (a[i] + b[i]) / 2;  // b[i]+-a[i] are const, so...
-            std::cout << x1[i] << " ";
+        //    std::cout << x1[i] << " ";
         }
-        std::cout << '\n';
+        //std::cout << '\n';
         vec.push_back(TrialP(1, IOPPtr->ComputeFunction(x1)));
 
         for (; curr_diff >= eps && k < NMax; ++k) {
@@ -229,16 +232,20 @@ public:
                 x_t1 += pow(abs(vec[t + 1].z - vec[t].z) /  m, dim) / (2*r);
             else 
                 x_t1 -= pow(abs(vec[t + 1].z - vec[t].z) / m, dim) / (2*r);
-            mapd(x, 10, x1.data(), dim, 1);
+            mapd(x_t1, 12, x1.data(), dim, 1);
             //
+            //std::cout << x_t1 << "   ";
             for (int i = 0; i < dim; ++i) {
                 x1[i] = (b[i] - a[i]) * x1[i] + (a[i]+b[i]) / 2;  // b[i]+-a[i] are const, so...
+                //std::cout << x1[i] << " ";
             }
+            //std::cout << '\n';
             ++count;
             curr_diff = std::min(pow(vec[t + 1].x - x_t1, 1.0/dim), pow((x_t1 - vec[t].x), 1.0 / dim));
             TrialP t1_pair(x_t1, IOPPtr->ComputeFunction(x1));
-            vec.insert(vec.begin() + t + 1, t1_pair);
-            
+            //vec.insert(vec.begin() + t + 1, t1_pair);
+            vec.insert(std::lower_bound(vec.begin(), vec.end(), t1_pair, [](const TrialP& a, const TrialP& b) {return a.x <= b.x; }), t1_pair); //No need for sorting, only to insert
+
         }
 
         // Findin' min in vec
