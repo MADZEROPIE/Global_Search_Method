@@ -83,7 +83,7 @@ void func2(IOptProblemFamily* IOPFPtr, std::string filepath, double r, double ep
     auto fam_size = IOPFPtr->GetFamilySize();
     vector<int> CountVec1;
     CountVec1.reserve(fam_size+1);
-    for (size_t i = 99; i < fam_size; ++i) {
+    for (size_t i = 0; i < fam_size; ++i) {
         //std::cout << "Тестируется " << family_name << " Problem" << i << std::endl;
         TesterD Tes(IOPFPtr->operator[](i), eps, r, NMax);
         bool tmp = Tes.Test(save_trials);

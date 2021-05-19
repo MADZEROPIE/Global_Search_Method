@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     vector<IOptProblemFamily*> vec = { &HFam, &HillFam, &ShekFam };
 
-    vector <int> r_vec = {9};//{ 2,3,4,5,6 };
+    vector <int> r_vec = {6};//{ 2,3,4,5,6 };
     
     //for(int r=2;r<6;++r)
     //{  // Casual(?)
