@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 
 
-#data=pd.read_csv("./build/Grishagin97.csv")
-data=pd.read_csv("./build/GKLS97.csv")
+data=pd.read_csv("./Grishagin0.csv")
+#data=pd.read_csv("./build/GKLS2.csv")
 data.columns=["x","y"]
 plt.scatter(data["x"], data["y"],sizes=[2.5]*len(data["x"]), marker='o')# , kind="scatter")
         #plt.step(data["x"],data["y"])

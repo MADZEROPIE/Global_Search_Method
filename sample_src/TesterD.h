@@ -26,8 +26,8 @@ public:
     }
 
     bool Test(bool save_trials = false) {
-        TrialD res = Min.find_glob_min_Peano(save_trials);
-        //TrialD res = Min.find_glob_min(save_trials);
+        //TrialD res = Min.find_glob_min_Peano(save_trials);
+        TrialD res = Min.find_glob_min(save_trials);
         double dev = abs(res.x[0] - expected.x[0]);
         for (int i = 1; i < dim; ++i) {
             dev = std::max(dev, abs(res.x[i] - expected.x[i]));

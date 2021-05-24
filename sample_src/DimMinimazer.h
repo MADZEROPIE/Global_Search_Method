@@ -228,10 +228,10 @@ public:
             }
 
             double x_t1 = (vec[t].x + vec[t + 1].x) / 2;
-            if((vec[t + 1].z - vec[t].z) > 0)
-                x_t1 += pow(abs(vec[t + 1].z - vec[t].z) /  m, dim) / (2*r);
-            else 
-                x_t1 -= pow(abs(vec[t + 1].z - vec[t].z) / m, dim) / (2*r);
+            if ((vec[t + 1].z - vec[t].z) > 0)
+                x_t1 += pow(abs(vec[t + 1].z - vec[t].z) / m, dim) / (2 * r);
+            else
+                x_t1 -= pow(abs(vec[t + 1].z - vec[t].z) / m, dim) / (2 * r);
             mapd(x_t1, 12, x1.data(), dim, 1);
             //
             //std::cout << x_t1 << "   ";
