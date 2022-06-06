@@ -84,7 +84,7 @@ MyConstrainedProblem* MyConstrainedProblemGenerator::Generate(MyConstrPrType typ
         
         func = new MySheckelFunction(SheckelIndex[m], 0.0); 
     }
-    else if (HillOnly) {
+    else /*if (type == HillOnly)*/ {
         LoBound = 0.0;
         UpBound = 1.0;
         std::vector<int> HillIndex(m + 1u);
